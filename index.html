@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="🧱 감정 DMZ – 내 관계, 정말 안전한가요? 감정이 존중받지 못하는 신호를 발견하고 건강한 경계선을 만들어보세요." name="description"/>
+<meta content="감정 DMZ, 관계 경계, 심리 자가진단, 감정 보호, 나르시시스트닷컴, 감정 테스트" name="keywords"/>
+<meta content="나르시시스트닷컴" name="author"/>
+<title>감정 DMZ | 나르시시스트닷컴</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+    :root {
+      /* Soul Blackbox & kakao-analysis 스타일 통합 */
+      --color-primary: #8B7BB8;
+      --color-primary-dark: #7A6BA7;
+      --color-primary-light: #E5DDF2;
+      --color-primary-lighter: #F9F7FC;
+      --color-accent: #FF9B9B;
+      --color-accent-dark: #E88A8A;
+      --color-accent-light: #FFE5E5;
+
+      --color-background: #FAFAFA;
+      --color-surface: #FFFFFF;
+      --color-border: #E0E0E0;
+      --color-border-light: #EEEEEE;
+
+      --color-text-primary: #2B2B2B;
+      --color-text-secondary: #4A4A4A;
+      --color-text-light: #6B6B6B;
+      --color-text-on-primary: #FFFFFF;
+      --color-text-on-accent: #FFFFFF;
+
+      --color-success-bg: #E8F5E9;
+      --color-success-text: #1B5E20;
+      --color-success-border: #A5D6A7;
+      --color-warning-bg: #FFF8E1;
+      --color-warning-text: #E65100;
+      --color-warning-border: #FFCA28;
+      --color-danger-bg: #FFE5E5;
+      --color-danger-text: #C62828;
+      --color-danger-border: #FFAAAA;
+      
+      --color-primary-rgb: 139, 123, 184;
+
+      --space-unit: 4px;
+      --space-xs: calc(var(--space-unit) * 2); /* 8px */
+      --space-sm: calc(var(--space-unit) * 3); /* 12px */
+      --space-md: calc(var(--space-unit) * 4); /* 16px */
+      --space-lg: calc(var(--space-unit) * 6); /* 24px */
+      --space-xl: calc(var(--space-unit) * 8); /* 32px */
+      --space-xxl: calc(var(--space-unit) * 12); /* 48px */
+
+      --border-radius-base: 12px;
+      --border-radius-sm: 6px;
+      --border-radius-lg: 16px;
+      --border-radius-pill: 50px;
+
+      --shadow-soft: 0 2px 8px rgba(0,0,0,0.04);
+      --shadow-medium: 0 4px 12px rgba(0,0,0,0.06);
+      --shadow-strong: 0 6px 18px rgba(0,0,0,0.08);
+
+      --transition-duration: 0.25s;
+      --transition-timing-function: ease-in-out;
+
+      --font-family-base: 'Noto Sans KR', sans-serif;
+      --font-size-base: 16px;
+      --font-size-sm: 14px;
+      --font-size-md: 18px;
+      --font-size-lg: 22px;
+      --font-size-xl: 26px;
+      
+      --font-weight-regular: 400;
+      --font-weight-medium: 500;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      
+      --line-height-base: 1.7; 
+      --line-height-heading: 1.4;
+
+      --fixed-header-height: 70px;
+      --bottom-nav-height: 70px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-family-base);
+      font-size: var(--font-size-base);
+      line-height: var(--line-height-base);
+      color: var(--color-text-primary);
+      background-color: var(--color-background);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      padding-bottom: 0; 
+      transition: padding-top var(--transition-duration) var(--transition-timing-function);
+    }
+    body.fixed-header-active {
+        padding-top: var(--fixed-header-height);
+    }
+    body.mobile-nav-active { 
+        padding-bottom: calc(var(--bottom-nav-height) + var(--space-md));
+    }
+
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 var(--space-md);
+    }
+
+    .header {
+      background: linear-gradient(135deg, var(--color-primary-lighter) 0%, var(--color-primary-light) 100%);
+      padding: var(--space-xl) var(--space-md);
+      text-align: center;
+      position: relative;
+      z-index: 900;
+      border-bottom: 1px solid var(--color-border);
+    }
+    
+    .header h1 {
+      font-size: var(--font-size-xl); 
+      font-weight: var(--font-weight-bold);
+      margin-bottom: var(--space-sm); 
+      color: var(--color-primary-dark);
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      gap: var(--space-sm);
+    }
+    
+    .header h1 .emoji {
+      font-size: 2rem;
+      filter: none;
+    }
+    
+    .header p {
+      font-size: var(--font-size-base); 
+      max-width: 700px;
+      margin: 0 auto;
+      color: var(--color-text-secondary);
+      word-break: keep-all;
+    }
+
+    .sticky-steps-indicator-wrapper {
+      position: sticky;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: rgba(255,255,255,0.95);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: var(--space-sm) 0;
+      z-index: 1000;
+      box-shadow: var(--shadow-medium);
+      transition: padding var(--transition-duration) var(--transition-timing-function), 
+                  box-shadow var(--transition-duration) var(--transition-timing-function),
+                  height var(--transition-duration) var(--transition-timing-function);
+      height: auto;
+      display: none; 
+    }
+    
+    .sticky-steps-indicator-wrapper .steps-indicator {
+      display: flex; 
+      justify-content: space-around;
+      position: relative;
+      margin: 0 auto; 
+      padding: 0 var(--space-md); 
+      max-width: 800px;
+      width: 100%;
+    }
+     .sticky-steps-indicator-wrapper .steps-indicator::before { 
+      content: '';
+      position: absolute;
+      top: 15px; 
+      left: 5%; 
+      width: 90%; 
+      height: 2px;
+      background-color: var(--color-border-light); 
+      z-index: 1;
+    }
+
+    .sticky-steps-indicator-wrapper.scrolled .step-icon {
+      width: 28px; 
+      height: 28px;
+      font-size: var(--font-size-sm); 
+    }
+    
+    .sticky-steps-indicator-wrapper.scrolled .step-label {
+      font-size: 11px; 
+    }
+    
+    .sticky-steps-indicator-wrapper.scrolled .step-label small {
+      display: none;
+    }
+
+    .sticky-steps-indicator-wrapper.scrolled .steps-indicator::before {
+      top: 13px;
+    }
+    
+    .step {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      flex: 1;
+      max-width: 180px;
+    }
+
+    .step-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: var(--color-surface);
+      border: 2px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--space-sm);
+      transition: all var(--transition-duration) var(--transition-timing-function);
+      box-shadow: var(--shadow-soft);
+      color: var(--color-text-light);
+    }
+
+    .step.active .step-icon {
+      background-color: var(--color-primary);
+      color: var(--color-text-on-primary);
+      border-color: var(--color-primary-dark);
+      transform: scale(1.15);
+      box-shadow: var(--shadow-medium);
+    }
+
+    .step.completed .step-icon { 
+      background-color: var(--color-success-text); 
+      border-color: var(--color-success-border);
+      color: var(--color-surface); 
+    }
+    .step.completed .step-icon::after {
+        content: '✓';
+        font-size: 1.2em;
+    }
+
+    .step-label {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-light);
+      transition: all var(--transition-duration) var(--transition-timing-function);
+      line-height: 1.4;
+      word-break: keep-all;
+    }
+     .step-label small { 
+        display: block;
+        font-size: 0.85em;
+        margin-top: 2px;
+        color: var(--color-text-light);
+    }
+
+    .step.active .step-label {
+      color: var(--color-primary-dark); 
+      font-weight: var(--font-weight-semibold);
+    }
+    .step.completed .step-label {
+        color: var(--color-success-text);
+        font-weight: var(--font-weight-medium);
+    }
+
+    .card {
+      background-color: var(--color-surface);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-medium);
+      margin-top: var(--space-xl);
+      margin-bottom: var(--space-xl);
+      overflow: hidden;
+      border: 1px solid var(--color-border-light);
+      transition: opacity 0.4s var(--transition-timing-function), transform 0.3s var(--transition-timing-function), box-shadow 0.3s var(--transition-timing-function);
+      opacity: 0; 
+      transform: translateY(20px);
+    }
+    .card.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    .card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-strong);
+    }
+    
+    .card-header {
+      padding: var(--space-lg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+      border-bottom: 1px solid var(--color-border-light);
+      background-color: var(--color-primary-lighter);
+    }
+    
+    .card-title {
+      font-size: var(--font-size-md); 
+      font-weight: var(--font-weight-semibold);
+      margin: 0;
+      color: var(--color-primary-dark);
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+    .card-title .emoji {
+        font-size: 1.5rem;
+        color: var(--color-primary-dark);
+    }
+    
+    .card-body {
+      padding: var(--space-lg);
+    }
+    .card-body p, .card-body ul li {
+        word-break: keep-all; 
+    }
+
+    .intro-text p {
+        color: var(--color-text-secondary);
+        margin-bottom: var(--space-md);
+    }
+    .intro-text p:last-child { margin-bottom: 0;}
+
+
+    .highlight, .strong-text {
+      font-weight: var(--font-weight-semibold); 
+      position: relative;
+      display: inline-block;
+      padding: 0 2px;
+      color: var(--color-primary-dark); 
+    }
+
+    .highlight::after, .strong-text::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      left: 0;
+      width: 100%;
+      height: 8px;
+      background-color: var(--color-primary-light);
+      opacity: 0.7;
+      z-index: -1;
+      border-radius: var(--border-radius-sm); 
+    }
+
+    .question-container { display: none; }
+    .question-container.active { display: block; }
+    .question { margin-bottom: var(--space-lg); }
+    .question-header { display: flex; align-items: flex-start; gap: var(--space-sm); margin-bottom: var(--space-md); }
+    .question-number {
+      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px;
+      background-color: var(--color-primary);
+      color: var(--color-text-on-primary);
+      font-weight: var(--font-weight-bold);
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 0;
+      box-shadow: var(--shadow-soft);
+    }
+    .question-title { font-size: var(--font-size-md); font-weight: var(--font-weight-medium); color: var(--color-text-primary); flex-grow: 1; line-height: 1.6; }
+
+    .binary-options { display: flex; flex-direction: column; gap: var(--space-md); margin: var(--space-lg) 0; }
+    .binary-option { flex: 1; }
+    .binary-label {
+      display: flex; align-items: center; justify-content: center;
+      padding: var(--space-md) var(--space-lg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-lg);
+      cursor: pointer;
+      transition: all var(--transition-duration) var(--transition-timing-function);
+      text-align: center;
+      font-weight: var(--font-weight-medium);
+      gap: var(--space-sm);
+      min-height: 60px; 
+      background-color: var(--color-surface);
+      box-shadow: var(--shadow-soft);
+    }
+    .binary-label:hover { 
+        background-color: var(--color-primary-lighter); 
+        border-color: var(--color-primary);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-medium);
+    }
+    input[type="radio"] { display: none; }
+    input[type="radio"]:checked + .binary-label {
+      background-color: var(--color-primary-light);
+      border-color: var(--color-primary-dark);
+      box-shadow: 0 0 0 3px var(--color-primary-lighter), var(--shadow-medium);
+      color: var(--color-primary-dark);
+      font-weight: var(--font-weight-semibold);
+    }
+    .binary-label .emoji-symbol {
+        font-size: 1.2rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--color-primary);
+      color: var(--color-text-on-primary);
+      font-weight: var(--font-weight-semibold);
+      padding: var(--space-sm) var(--space-lg); 
+      border-radius: var(--border-radius-pill);
+      text-align: center;
+      transition: all var(--transition-duration) var(--transition-timing-function);
+      border: 1px solid transparent;
+      cursor: pointer;
+      font-size: var(--font-size-base);
+      text-decoration: none;
+      user-select: none;
+      min-height: 48px; 
+      box-shadow: var(--shadow-soft);
+    }
+    .btn:hover:not(:disabled) {
+      background-color: var(--color-primary-dark);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-medium);
+    }
+    .btn:active:not(:disabled) {
+      transform: translateY(0px);
+      box-shadow: var(--shadow-soft);
+    }
+    .btn:disabled {
+        background-color: var(--color-border);
+        border-color: var(--color-border-light);
+        color: var(--color-text-light);
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+
+    .btn-secondary { 
+      background-color: var(--color-surface);
+      color: var(--color-primary-dark);
+      border: 1px solid var(--color-primary-light);
+    }
+    .btn-secondary:hover:not(:disabled) {
+      background-color: var(--color-primary-lighter);
+      border-color: var(--color-primary);
+      color: var(--color-primary-dark);
+    }
+    
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-md);
+      margin-top: var(--space-xl);
+      margin-bottom: var(--space-lg);
+    }
+
+    .nav-buttons .btn {
+      flex-grow: 1; 
+      max-width: calc(50% - var(--space-sm));
+    }
+    .nav-buttons .btn.full-width {
+        max-width: 300px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .progress-container {
+      height: 10px;
+      width: 100%;
+      background-color: var(--color-border-light);
+      border-radius: var(--border-radius-pill);
+      margin: var(--space-lg) 0;
+      overflow: hidden;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .progress-bar {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--color-primary-light), var(--color-primary));
+      border-radius: var(--border-radius-pill);
+      transition: width 0.4s ease;
+    }
+    .progress-text { text-align: right; font-size: var(--font-size-sm); color: var(--color-text-light); margin-top: var(--space-xs); }
+
+    .result-container { display: none; padding: 0; background-color: transparent; }
+    .result-header { text-align: center; margin-bottom: var(--space-lg); }
+    .result-title { font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); color: var(--color-primary-dark); margin-bottom: var(--space-md); }
+    .result-subtitle { font-size: var(--font-size-base); color: var(--color-text-secondary); }
+    
+    .result-card {
+      padding: var(--space-lg);
+      border-radius: var(--border-radius-lg);
+      margin-bottom: var(--space-xl);
+      box-shadow: var(--shadow-medium);
+      border-left: 6px solid;
+      background-color: var(--color-surface);
+      border: 1px solid var(--color-border-light);
+    }
+    .result-safe { background-color: var(--color-success-bg); border-left-color: var(--color-success-text); }
+    .result-safe .result-level { color: var(--color-success-text); }
+    .result-warning { background-color: var(--color-warning-bg); border-left-color: var(--color-warning-text); }
+    .result-warning .result-level { color: var(--color-warning-text); }
+    .result-danger { background-color: var(--color-danger-bg); border-left-color: var(--color-danger-text); }
+    .result-danger .result-level { color: var(--color-danger-text); }
+
+    .result-level { display: flex; align-items: center; gap: var(--space-sm); font-size: var(--font-size-md); font-weight: var(--font-weight-bold); margin-bottom: var(--space-md); }
+    .result-level i { font-size: 1.5em; }
+
+    .result-description p { color: var(--color-text-secondary); margin-bottom: var(--space-sm); }
+    .result-description p:last-child { margin-bottom: 0; }
+    .result-description strong { color: var(--color-primary-dark); font-weight: var(--font-weight-semibold); }
+    
+    .result-percentage { font-size: 32px; font-weight: var(--font-weight-bold); margin: var(--space-md) 0 var(--space-lg) 0; text-align: center; }
+    #safe-percentage {color: var(--color-success-text);}
+    #warning-percentage {color: var(--color-warning-text);}
+    #danger-percentage {color: var(--color-danger-text);}
+
+    .detailed-analysis-card {
+        border-left-color: var(--color-primary);
+        background-color: var(--color-primary-lighter);
+    }
+    .detailed-analysis-list {
+        list-style-type: none;
+        padding-left: 0;
+        margin-top: var(--space-md);
+    }
+    .detailed-analysis-item {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: var(--space-lg);
+      padding: var(--space-md);
+      background-color: var(--color-surface);
+      border-radius: var(--border-radius-base);
+      border: 1px solid var(--color-primary-light);
+      box-shadow: var(--shadow-soft);
+    }
+    .detailed-analysis-item .item-icon {
+      font-size: 1.5rem;
+      margin-right: var(--space-md);
+      color: var(--color-primary);
+      flex-shrink: 0;
+      width: 24px;
+      text-align: center;
+      margin-top: 2px;
+    }
+    .detailed-analysis-item .item-content { flex: 1; }
+    .detailed-analysis-item .item-question {
+        font-weight: var(--font-weight-semibold); 
+        color: var(--color-primary-dark); 
+        margin-bottom: var(--space-xs); 
+        line-height: 1.5;
+    }
+    .detailed-analysis-item .item-explanation {
+      color: var(--color-text-secondary);
+      font-size: var(--font-size-sm);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .recommendation-section { margin-top: var(--space-xl); padding-top: var(--space-xl); border-top: 1px solid var(--color-border); }
+    .recommendation-title { font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); color: var(--color-primary-dark); margin-bottom: var(--space-md); }
+    .recommendation-list { list-style-type: none; padding-left: 0; }
+    .recommendation-item { 
+        margin-bottom: var(--space-md); 
+        color: var(--color-text-secondary); 
+        padding-left: calc(var(--space-lg) + var(--space-xs));
+        position: relative;
+    }
+    .recommendation-item::before { 
+        content: '💡';
+        position: absolute;
+        left: 0;
+        color: var(--color-primary);
+        font-size: 1.2em;
+        line-height: inherit;
+    }
+    .recommendation-item strong { color: var(--color-primary-dark); font-weight: var(--font-weight-semibold); }
+
+
+    .date-text { color: var(--color-text-light); font-size: var(--font-size-sm); text-align: center; margin-bottom: var(--space-lg); }
+
+    .tip-box {
+      background-color: var(--color-primary-lighter);
+      border-radius: var(--border-radius-lg);
+      padding: var(--space-lg);
+      margin-top:var(--space-lg);
+      margin-bottom: var(--space-lg);
+      position: relative;
+      border: 1px solid var(--color-primary-light);
+      border-left: 5px solid var(--color-primary);
+      box-shadow: var(--shadow-soft);
+    }
+    .tip-title { 
+        font-size: var(--font-size-md);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-primary-dark);
+        margin-bottom: var(--space-sm); 
+        display: flex;
+        align-items: center;
+        gap: var(--space-xs);
+    }
+     .tip-title .emoji {
+        font-size: 1.2em;
+        line-height: 1;
+    }
+    .tip-box p { color: var(--color-text-secondary); margin-bottom: var(--space-sm); }
+    .tip-box p:last-child { margin-bottom:0; }
+
+    @keyframes shakeAnimation {
+      0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); } 100% { transform: translateX(0); }
+    }
+    .shake { animation: shakeAnimation 0.4s ease-in-out; }
+
+    .learn-more-btn {
+      background-color: var(--color-surface);
+      color: var(--color-primary-dark);
+      border: 1px solid var(--color-primary-light);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: var(--border-radius-pill);
+      cursor: pointer;
+      transition: all var(--transition-duration) var(--transition-timing-function);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      box-shadow: var(--shadow-soft);
+    }
+    .learn-more-btn:hover { 
+        background-color: var(--color-primary-lighter); 
+        border-color: var(--color-primary); 
+        color: var(--color-primary-dark);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-medium);
+    }
+    .learn-more-btn i { font-size: 0.9em; }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      z-index: 1001; 
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      overflow: auto; 
+      background-color: rgba(var(--color-primary-rgb), 0.6); 
+      opacity: 0; 
+      transition: opacity var(--transition-duration) ease; 
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.is-active {
+      display: flex; 
+      opacity: 1;
+    }
+    .modal-container { 
+      background-color: var(--color-surface);
+      max-width: 700px; 
+      width: 90%;
+      border-radius: var(--border-radius-lg); 
+      box-shadow: var(--shadow-strong); 
+      position: relative; 
+      transform: scale(0.95) translateY(-20px); 
+      transition: transform var(--transition-duration) var(--transition-timing-function), 
+                  opacity var(--transition-duration) var(--transition-timing-function); 
+      opacity: 0;
+      overflow: hidden; 
+      display: flex; 
+      flex-direction: column; 
+      max-height: 90vh; 
+    }
+    .modal-overlay.is-active .modal-container {
+      transform: scale(1) translateY(0); 
+      opacity: 1;
+    }
+    .modal-header { 
+      position: sticky; top: 0;
+      background-color: var(--color-surface);
+      padding: var(--space-md) var(--space-lg);
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 2; 
+    }
+    .modal-title { 
+        font-size: var(--font-size-md);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-primary-dark); 
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: var(--space-xs);
+    }
+    .modal-title .emoji {
+        font-size: 1.5rem;
+    }
+    .modal-close { 
+      background: none; border: none;
+      color: var(--color-text-light);
+      font-size: 24px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      transition: all var(--transition-duration);
+    }
+    .modal-close:hover {
+      background-color: var(--color-border-light);
+      color: var(--color-text-primary); 
+    }
+    .modal-body { 
+      padding: var(--space-lg);
+      line-height: var(--line-height-base);
+      overflow-y: auto; 
+      flex-grow: 1; 
+    }
+    .modal-body p { 
+        color: var(--color-text-secondary); 
+        margin-bottom: var(--space-md); 
+        word-break: keep-all;
+    }
+    .modal-body strong { color: var(--color-primary-dark); font-weight: var(--font-weight-semibold); }
+    .modal-body h2 {
+        color: var(--color-primary-dark);
+        font-size: var(--font-size-base);
+        font-weight: var(--font-weight-semibold);
+        margin: var(--space-lg) 0 var(--space-sm);
+    }
+    .modal-body ul { 
+        list-style-type: none;
+        padding-left: 0; 
+        margin-bottom: var(--space-md);
+    }
+    .modal-body li {
+        margin-bottom: var(--space-xs);
+        padding-left: var(--space-lg);
+        position: relative;
+        word-break: keep-all;
+    }
+    .modal-body li::before {
+        content: '✓'; 
+        position: absolute; 
+        left: 0; 
+        color: var(--color-primary);
+        font-weight: bold;
+    }
+
+    .modal-body table { width: 100%; border-collapse: collapse; margin: var(--space-lg) 0; border: 1px solid var(--color-border-light); }
+    .modal-body th, .modal-body td { border: 1px solid var(--color-border-light); padding: var(--space-sm) var(--space-md); text-align: left; word-break: keep-all;}
+    .modal-body th { background-color: var(--color-primary-lighter); color: var(--color-primary-dark); font-weight: var(--font-weight-semibold); }
+    
+    .emotional-quote {
+      font-size: var(--font-size-base); color: var(--color-text-secondary);
+      text-align: left;
+      margin: var(--space-lg) 0; line-height: 1.7; padding: var(--space-lg);
+      background-color: var(--color-primary-lighter); border-radius: var(--border-radius-lg);
+      border-left: 5px solid var(--color-primary);
+      box-shadow: var(--shadow-soft);
+    }
+    .emotional-quote p { margin-bottom: var(--space-sm); }
+    .emotional-quote p:last-child { margin-bottom: 0; }
+    
+    .privacy-notice {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      text-align: left;
+      margin-top: var(--space-lg);
+      padding: var(--space-lg);
+      background-color: var(--color-primary-lighter);
+      border-radius: var(--border-radius-lg);
+      border: 1px solid var(--color-primary-light);
+      border-left: 5px solid var(--color-accent);
+    }
+    .privacy-notice i { margin-right: var(--space-xs); color: var(--color-accent-dark); }
+
+    .button-group {
+        display: flex; 
+        flex-wrap: wrap;
+        gap: var(--space-md); 
+        margin-top: var(--space-lg); 
+        justify-content: center; 
+    }
+    .button-group .btn { 
+        flex-grow: 1;
+        min-width: 150px;
+        max-width: 220px;
+    }
+
+    .toast-message {
+      position: fixed;
+      bottom: 20px; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background-color: var(--color-success-bg);
+      color: var(--color-success-text);
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--border-radius-base);
+      box-shadow: var(--shadow-medium);
+      font-size: var(--font-size-sm);
+      z-index: 10000;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+      pointer-events: none;
+    }
+    .toast-message.show { 
+        opacity: 1; 
+        transform: translateX(-50%) translateY(0); 
+        pointer-events: auto;
+    }
+    .toast-message.error {
+        background-color: var(--color-danger-bg);
+        color: var(--color-danger-text);
+    }
+
+    @media (max-width: 768px) {
+      /* body.mobile-nav-active 클래스는 JS에서 제어 */
+      .container { padding: 0 var(--space-sm); }
+      .header { padding: var(--space-lg) var(--space-sm); }
+      .header h1 { font-size: var(--font-size-lg); }
+      
+      .sticky-steps-indicator-wrapper .step-icon { width: 28px; height: 28px; font-size: var(--font-size-sm); }
+      .sticky-steps-indicator-wrapper .step-label { font-size: 10px; max-width: 100px; }
+      .sticky-steps-indicator-wrapper .step-label small { font-size: 0.9em; }
+
+      .sticky-steps-indicator-wrapper.scrolled .step-icon { width: 24px; height: 24px; font-size: 10px; }
+      .sticky-steps-indicator-wrapper.scrolled .step-label { font-size: 9px; max-width: 80px; }
+      .sticky-steps-indicator-wrapper.scrolled .steps-indicator::before { top: 11px; }
+      
+      .card-header { padding: var(--space-md); } 
+      .card-body { padding: var(--space-md); }
+      .card-title { font-size: var(--font-size-base); }
+      .card-title .emoji { font-size: 1.2rem; }
+      
+      .question-title { font-size: var(--font-size-base); }
+
+      .binary-options { gap: var(--space-sm); }
+      .binary-label { padding: var(--space-md); min-height: 50px;}
+
+      .result-title { font-size: var(--font-size-lg); }
+      .result-percentage { font-size: 28px; }
+
+      /* 모바일 하단 고정 네비게이션 스타일 */
+      #question-nav-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        background-color: var(--color-surface);
+        border-top: 1px solid var(--color-border-light);
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        padding: var(--space-sm) var(--space-md);
+        z-index: 100;
+        margin-top: 0; margin-bottom: 0;
+        display: none; /* JS로 제어 */
+      }
+
+      #question-nav-buttons .btn {
+        flex-grow: 1;
+        margin: 0 var(--space-xs); 
+        max-width: none;
+      }
+      #question-nav-buttons .btn:first-child:last-child {
+          max-width: 300px; margin-left: auto; margin-right: auto;
+      }
+
+      .modal-container { width: 95%; } 
+      .modal-header { padding: var(--space-md); }
+      .modal-title { font-size: var(--font-size-base); }
+      .modal-body { padding: var(--space-md); }
+    }
+
+    @media (max-width: 480px) {
+      .header h1 { font-size: var(--font-size-md); } 
+      .header p { font-size: var(--font-size-sm); } 
+      .sticky-steps-indicator-wrapper.scrolled .step-icon { width: 20px; height: 20px; font-size: 9px;}
+      .sticky-steps-indicator-wrapper.scrolled .step-label { font-size: 8px; max-width: 70px;}
+      .sticky-steps-indicator-wrapper.scrolled .steps-indicator::before { top: 9px; }
+      .button-group .btn { min-width: 100%; }
+    }
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: var(--color-background); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(to bottom, var(--color-primary-light), var(--color-primary));
+      border-radius: 10px;
+      border: 3px solid var(--color-background);
+    }
+    ::-webkit-scrollbar-thumb:hover { background: var(--color-primary); }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prop-types/15.8.1/prop-types.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.7.2/Recharts.min.js"></script>
+</head>
+<body>
+
+<div class="sticky-steps-indicator-wrapper" id="stickyStepsIndicatorWrapper">
+    <div class="steps-indicator">
+      </div>
+</div>
+
+<header class="header" id="pageHeader">
+    <div class="container">
+        <h1><span class="emoji">🧱</span> 감정 DMZ</h1>
+        <p>이 사람과의 관계에서, 당신의 마음은 안녕하신가요?<br class="mobile-break">함께 천천히 살펴보며 마음의 안전지도를 그려보아요.</p>
+    </div>
+</header>
+
+<main class="container" id="mainContent">
+    <div class="card" id="intro-card"> <div class="card-header">
+            <h2 class="card-title"><span class="emoji"><i class="fas fa-shield-alt" aria-hidden="true"></i></span> 관계 안전도 진단</h2>
+            <button class="learn-more-btn" id="learn-more-btn">
+                <i class="fas fa-info-circle" aria-hidden="true"></i> 이게 뭔가요?
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="intro-text">
+                <p>이 사람과 함께 있을 때 <strong class="strong-text">내 마음이 정말 편안한지</strong> 알아보는 시간이에요. 모든 답변은 당신만 알 수 있도록 안전하게 처리되니 솔직하게 답해주세요.</p>
+                <p style="margin-top: var(--space-md);">총 25개의 질문을 통해 현재 관계의 건강도를 살펴보고, 앞으로 당신의 마음이 더 편안해질 수 있도록 작은 힌트를 드릴게요. <strong class="strong-text">숨기지 않고 솔직한 마음</strong>을 들려주시는 것이 중요합니다.</p>
+                <p style="margin-top: var(--space-md);">점수가 낮을수록 평화로운 관계 <span class="emoji">✅</span><br>점수가 높을수록 주의가 필요한 관계 <span class="emoji">⚠️</span><br/>(0점 = 완전 평화, 100점 = 매우 주의). <br>이 테스트로 '여기까지는 선 넘지 말아줘!' 하는 당신 마음의 선이 잘 지켜지고 있는지 함께 확인해봐요.</p>
+                <p style="margin-top: var(--space-md); color: var(--color-text-light);"><i class="fas fa-clock" aria-hidden="true"></i> 예상 소요시간: 약 5분</p>
+            </div>
+            <div class="nav-buttons"> <button type="button" class="btn btn-primary full-width" id="start-btn">
+                    테스트 시작하기 <span style="margin-left: 4px;">➔</span>
+                </button>
+            </div>
+            <div class="privacy-notice">
+             <i class="fas fa-lock"></i> 당신의 답변과 결과는 현재 사용 중인 이 브라우저(폰/컴퓨터)에만 저장됩니다. 외부로 전송되지 않으니 안심하고 테스트를 진행하세요.
+            </div>
+        </div>
+    </div>
+
+    <div id="test-area" style="display: none;">
+        <div class="progress-container" id="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div class="progress-text" id="progress-text">1/25</div>
+        <div class="card" id="question-card"> <div class="card-body">
+                </div>
+        </div>
+        <div class="nav-buttons" id="question-nav-buttons">
+            </div>
+    </div>
+
+
+    <div class="card" id="result-card-wrapper" style="display: none;"> <div class="card-header">
+            <h2 class="card-title"><span class="emoji"><i class="fas fa-poll" aria-hidden="true"></i></span> 테스트 결과</h2>
+        </div>
+        <div class="card-body">
+            <div class="result-container" id="result-container"> <div class="result-header">
+                    <h2 class="result-title">감정 DMZ 진단 결과</h2>
+                    <p class="result-subtitle">당신의 관계 안전도와 마음을 지키는 방법입니다.</p>
+                </div>
+                <div class="result-card result-safe" id="result-safe" style="display: none;">
+                    <div class="result-level">
+                        <i class="fas fa-check-circle" aria-hidden="true"></i><span>안전한 관계 영역</span>
+                    </div>
+                    <div class="result-percentage" id="safe-percentage"></div>
+                    <div class="result-description">
+                        <p>지금 두 분의 관계는 <strong class="strong-text">꽤 평화로운 상태</strong>로 보여요. 마음 편하게 자신의 감정을 표현하고, 서로 존중하는 건강한 관계를 만들어가고 계신 것 같아요.</p>
+                    </div>
+                </div>
+                <div class="result-card result-warning" id="result-warning" style="display: none;">
+                    <div class="result-level">
+                        <i class="fas fa-exclamation-triangle" aria-hidden="true"></i><span>주의: 경계가 필요한 영역</span>
+                    </div>
+                    <div class="result-percentage" id="warning-percentage"></div>
+                    <div class="result-description">
+                        <p>마음의 경계선에 <strong class="strong-text">노란불</strong>이 켜졌어요. 때로는 당신의 감정이 충분히 존중받지 못하거나, 반대로 상대방의 눈치를 너무 많이 보고 있을 가능성이 있어요. 관계를 한번 돌아보는 시간이 필요해 보여요.</p>
+                    </div>
+                </div>
+                <div class="result-card result-danger" id="result-danger" style="display: none;">
+                    <div class="result-level">
+                        <i class="fas fa-skull-crossbones" aria-hidden="true"></i><span>위험: 심리적 안전 위협</span>
+                    </div>
+                    <div class="result-percentage" id="danger-percentage"></div>
+                    <div class="result-description">
+                        <p><strong class="strong-text">🚨긴급 상황!🚨 현재 관계에서 마음이 많이 다치고 있다는 비상 신호</strong>가 감지되었어요. 감정적인 무시, 통제, 혹은 자존감을 깎아내리는 패턴이 반복된다면 이는 건강하지 않은 관계일 수 있습니다. 당신의 안전을 위해 진지하게 관계를 점검하고 필요하다면 전문가의 도움을 고려해보세요.</p>
+                    </div>
+                </div>
+
+                <div class="result-card detailed-analysis-card" id="detailed-analysis-card" style="display: none;">
+                    <div class="result-level">
+                        <span class="emoji" style="font-size:1.5em;"><i class="fas fa-search-plus" aria-hidden="true"></i></span><span>상세 분석: 마음의 신호등</span>
+                    </div>
+                    <div class="result-description">
+                        <p>'예'라고 답한 항목들은 관계에서 주의 깊게 살펴봐야 할 신호일 수 있습니다. 어떤 부분에서 마음의 경계가 흔들리고 있는지 확인해보세요.</p>
+                    </div>
+                    <div id="detailed-analysis-container"></div>
+                </div>
+
+                <div class="recommendation-section">
+                    <h3 class="recommendation-title"><span class="emoji" style="font-size:1.2em; margin-right: var(--space-xs);">💡</span> 마음을 지키는 실천 팁</h3>
+                    <ul class="recommendation-list">
+                        <li class="recommendation-item">
+                            <strong class="strong-text">명확한 선 긋기 연습</strong> - "나는 그런 말을 들으면 기분이 좋지 않아." 또는 "이런 행동은 자제해주면 좋겠어." 와 같이 당신의 경계를 명확하게 표현해보세요.
+                        </li>
+                        <li class="recommendation-item">
+                            <strong class="strong-text">나의 감정 솔직하게 표현하기</strong> - "당신이 OO했을 때, 나는 OO라고 느껴." 처럼 '나 전달법(I-message)'을 사용하여 당신의 감정을 차분히 전달하는 연습을 해보세요.
+                        </li>
+                        <li class="recommendation-item">
+                            <strong class="strong-text">나를 지지해 줄 연결망 만들기</strong> - 힘들 때 기댈 수 있는 친구, 가족, 또는 신뢰할 수 있는 사람들과의 관계를 소중히 하고, 필요하다면 당신의 어려움을 나눠보세요.
+                        </li>
+                    </ul>
+                </div>
+                <p class="date-text" id="current-date">날짜</p>
+                <div class="result-card">
+                    <div class="result-level">
+                        <span class="emoji" style="font-size:1.5em;"><i class="fas fa-chart-line" aria-hidden="true"></i></span><span>감정 DMZ 여정 그래프</span>
+                    </div>
+                    <div class="chart-container" id="chart-container" style="min-height: 300px;">
+                        </div>
+                </div>
+                <div class="result-card" id="progress-card">
+                    <div class="result-level">
+                        <span class="emoji" style="font-size:1.5em;"><i class="fas fa-calendar-alt" aria-hidden="true"></i></span><span>월별 변화</span>
+                    </div>
+                    <div style="text-align: center; margin: var(--space-md) 0;">
+                        <span id="change-rate" style="font-size: 28px; font-weight: 700; color: var(--color-primary-dark);">첫 측정</span>
+                    </div>
+                    <div class="result-description" id="improvement-message" style="text-align:center;">
+                        변화율 메시지가 여기에 표시됩니다.
+                    </div>
+                </div>
+                <div class="tip-box">
+                    <h3 class="tip-title"><span class="emoji">💡</span> 알아두세요</h3>
+                    <p style="margin-bottom: var(--space-sm);">자신의 마음을 지키는 여정은 때로 오르막과 내리막이 있을 수 있습니다. 점수가 변동하더라도, 그것 또한 자신을 알아가는 과정의 일부임을 기억해주세요.</p>
+                    <p>한 달에 한 번씩 꾸준히 체크하면서 당신의 관계와 감정이 어떻게 변화하는지 지켜보세요. 작은 변화와 노력도 당신에게는 소중한 성장이 될 수 있습니다.</p>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: var(--space-xl);">
+                <div class="button-group">
+                    <button class="btn btn-primary" id="restart-btn"><i class="fas fa-redo-alt" aria-hidden="true" style="margin-right:var(--space-xs);"></i> 테스트 다시하기</button>
+                    <button class="btn btn-secondary" id="save-image-btn"><i class="fas fa-image" aria-hidden="true" style="margin-right:var(--space-xs);"></i> 이미지로 저장</button>
+                    <button class="btn btn-secondary" id="copy-link-btn"><i class="fas fa-link" aria-hidden="true" style="margin-right:var(--space-xs);"></i> 링크 복사</button>
+                </div>
+                <p style="color: var(--color-text-light); font-size: var(--font-size-sm); margin-top: var(--space-md);">
+                    ※ 본 테스트는 의학적 진단을 대체할 수 없습니다. 자신의 마음을 돌아보는 참고 자료로 활용해주세요.
+                </p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div class="modal-overlay" id="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3 class="modal-title"><span class="emoji">🧱</span> 감정 DMZ, 그게 뭔가요?</h3>
+            <button class="modal-close" id="modal-close" aria-label="닫기">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="emotional-quote">
+                <p>❝왜 함께 있는데도 이렇게 마음이 불편할까요?❞<br/>큰 다툼이 없었음에도, 특정 사람과 대화하고 나면 유독 기운이 빠지고 지칠 때가 있습니다.</p>
+                <p>어떤 말을 꺼내려 할 때마다 나도 모르게 망설이거나 방어적인 자세를 취하게 됩니다.</p>
+                <p>때로는 내가 왜 미안한지조차 모르겠지만, 습관처럼 사과하고 있는 자신을 발견하기도 합니다.</p>
+                <p>차라리 혼자 있는 시간이 더 평온하게 느껴질 때도 있습니다.</p>
+                <p>이런 감정들은 단순한 기분 탓이 아닐 수 있습니다.<br/>당신의 <strong class="strong-text">마음의 방어선이 무너지고 있다는 신호</strong>일 수 있습니다.</p>
+            </div>
+            
+            <h2><strong>🎯 핵심은 '건강한 경계 설정'입니다.</strong></h2>
+            <p>감정은 억누르기보다 건강하게 표현되고 존중받아야 합니다. "당신이 너무 예민해서 그래.", "그게 뭐 그리 대수로운 일이라고 그래?" 와 같은 말들은 진솔한 대화가 아니라 당신의 감정을 무시하는 표현일 수 있습니다.</p>
+            
+            <h2><strong>📡 그래서 준비했어요, 감정 DMZ 진단</strong></h2>
+            <p>DMZ는 '비무장지대' 즉, 안전이 보장되어야 하는 완충지대를 의미합니다. 이 테스트는 당신과 상대방 사이에 <strong class="strong-text">서로 존중하는 '마음의 울타리'</strong>가 잘 세워져 있는지 확인해볼 수 있도록 돕습니다.</p>
+            <ul>
+                <li>나의 감정이 관계 안에서 안전하게 보호받고 있는지 점검합니다.</li>
+                <li>혹시 상대방으로부터 감정적으로 무시당하거나 심리적으로 조종당하고 있지는 않은지 살펴봅니다.</li>
+                <li>총 25개의 질문을 통해 관계의 안전도를 점수로 확인하고, 그 의미를 안내해드립니다.</li>
+            </ul>
+
+            <h2><strong>🔍 결과는 이렇게 해석해볼 수 있어요.</strong></h2>
+            <p>각 질문은 당신의 마음의 경계선이 혹시 침해당하고 있을 수 있는 다양한 상황들을 나타냅니다. 점수에 따라 관계의 안전도를 세 단계로 나누어 살펴볼 수 있습니다.</p>
+            <table class="score-table">
+                <thead>
+                    <tr><th>점수 범위</th><th>안전도 수준</th><th>어떤 의미일까요?</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>70점 ~ 100점</td><td>❗ 매우 주의</td><td>심리적으로 매우 불안정하고 위험한 상태일 수 있습니다.</td></tr>
+                    <tr><td>40점 ~ 69점</td><td>⚠️ 주의 필요</td><td>관계에서 감정 소모가 크고, 경계 설정에 어려움을 겪고 있을 수 있습니다.</td></tr>
+                    <tr><td>0점 ~ 39점</td><td>✅ 비교적 안전</td><td>비교적 건강하고 평화로운 관계를 유지하고 있는 것으로 보입니다.</td></tr>
+                </tbody>
+            </table>
+
+            <h2><strong>🧭 이렇게 진행해보세요.</strong></h2>
+            <ul>
+                <li>'테스트 시작하기' 버튼을 눌러주세요.</li>
+                <li>총 25개의 질문에 '예' 또는 '아니오'로 솔직하게 답변해주세요.</li>
+                <li>모든 질문에 답변하면, 점수와 함께 간단한 결과 설명을 바로 확인할 수 있습니다. (결과는 당신의 현재 기기 브라우저에만 저장되며, 외부로 전송되지 않습니다.)</li>
+            </ul>
+
+            <h2><strong>❓ 혹시 당신도 이런 경험이 있나요?</strong></h2>
+            <p>다음과 같은 생각을 자주 하신다면, 이 테스트가 도움이 될 수 있습니다.</p>
+            <ul>
+                <li>"분명 뭔가 잘못된 것 같은데, 늘 내 탓인 것만 같아 혼란스러워요."</li>
+                <li>"그 사람과 대화하고 나면 유독 기운이 없고 감정적으로 지쳐요."</li>
+                <li>"차라리 그 사람이 없을 때 마음이 더 편안하고 숨통이 트이는 것 같아요."</li>
+                <li>"비슷한 문제로 계속 부딪히지만, 문제가 제대로 해결된 적은 없는 것 같아요."</li>
+                <li>"관계에서 뭔가 잘못되었다고 느끼지만, 어떻게 표현해야 할지 모르겠어요."</li>
+            </ul>
+
+            <h2><strong>🧠 이 테스트가 왜 필요할까요?</strong></h2>
+            <ul>
+                <li>감정은 무시한다고 사라지지 않습니다. 꾹꾹 눌러 담으면 오히려 내면에서 곪아 터질 수 있습니다.</li>
+                <li>모든 관계에서 가장 중요한 기반 중 하나는 <strong class="strong-text">'심리적 안전감'</strong>입니다. 함께 있을 때 마음이 편안하고 존중받는다고 느껴야 건강한 관계라 할 수 있습니다.</li>
+                <li>이 테스트는 당신의 감정을 평가하거나 판단하기 위함이 아닙니다. 오롯이 <strong class="strong-text">당신 자신을 보호하고 건강한 관계를 만들어가기 위한 하나의 도구</strong>입니다.</li>
+            </ul>
+            <div class="emotional-quote" style="background-color: var(--color-accent-lighter); border-left-color: var(--color-accent);">
+                <p>📌 이 테스트는 "힘드셨군요."라는 단순한 위로를 넘어, 현재 당신의 마음이 관계 안에서 어느 정도의 어려움을 느끼고 있는지 객관적으로 살펴볼 수 있도록 돕는 <strong class="strong-text">'마음 건강검진'</strong>과 같습니다.</p>
+                <p>"분명 관계 자체는 나쁘지 않은 것 같은데, 왜 나만 이렇게 지치고 힘들까?" 라고 느껴왔다면, 그 이유를 이제 숫자를 통해 조금 더 명확하게 확인해보세요.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast-message" id="toast-message" role="alert">링크가 클립보드에 복사되었습니다!</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  
+  const YES_SCORE = 4;
+  const NO_SCORE = 0;
+  const HIGH_RISK_THRESHOLD = 70;
+  const WARNING_THRESHOLD = 40;
+  const QUESTIONS_PER_TEST = 25;
+
+  const allQuestionsData = [
+      // (이전과 동일한 50개 질문 데이터)
+      { q: "😮‍💨 오히려 그 사람이 없을 때 숨통이 트이고 마음이 편안하다고 느낀 적이 있나요?", a: "혼자 있을 때 '아, 이제야 좀 살겠다' 싶은 안도감이 든다면, 그 관계가 당신을 지속적으로 긴장하게 만들고 있다는 신호일 수 있습니다. 진정으로 좋은 관계는 함께 있을 때 편안함을 느끼게 합니다." },
+      { q: "🤔 그 사람에게 메시지(카톡, 문자 등) 하나를 보낼 때도, '이 말을 해도 괜찮을까?' 하며 여러 번 고민하고 수정하나요?", a: "어떤 말을 해야 할지, 상대방이 어떻게 받아들일지 계속 눈치를 보며 자기 검열을 하게 된다면, 당신의 솔직한 감정 표현이 위축되고 있다는 의미일 수 있습니다." },
+      { q: "🤦‍♀️ 분명 그 상황이나 문제가 그렇게 된 것이 아닌데, 대화하다 보면 결국 모든 것이 내 잘못인 것처럼 결론 날 때가 많나요?", a: "모든 문제의 원인을 당신의 탓으로 돌리는 상황이 반복된다면, 이는 책임 전가일 수 있습니다. 이런 상황은 당신의 자존감을 갉아먹는 가스라이팅의 한 형태일 수 있습니다." },
+      { q: "⛈️ 상대방의 기분에 따라 당신의 하루 감정 상태도 크게 좌우되나요? (예: 상대방이 저기압이면 하루 종일 불안하고 눈치 보게 된다)", a: "상대방의 감정 상태에 따라 당신의 하루가 천국과 지옥을 오간다면, 당신의 감정 주도권을 상대방에게 넘겨준 것일 수 있습니다. 각자의 감정은 각자의 책임이라는 것을 기억하는 것이 중요합니다." },
+      { q: "🤐 당신이 조심스럽게 어떤 문제나 감정에 대해 이야기를 꺼내면, '또 그 얘기야?', '왜 그렇게 예민하게 굴어?' 와 같은 반응을 자주 듣나요?", a: "당신의 감정이나 생각을 '예민함'으로 치부하거나 반복되는 불만으로 몰아가는 것은, 당신의 의견을 무시하고 대화를 차단하려는 시도일 수 있습니다." },
+      { q: "🏳️ 더 이상 갈등을 만들고 싶지 않아서, 혹은 지쳐서, 그냥 당신이 먼저 '미안하다'고 말하고 상황을 마무리할 때가 많나요?", a: "매번 당신만 사과하고 넘어간다면 문제는 근본적으로 해결되지 않습니다. 이는 불평등한 관계를 지속시키고, 당신의 감정만 소모시킬 뿐입니다." },
+      { q: "🧱 당신이 기뻐하거나 슬퍼할 때, 상대방은 별다른 관심이나 감정적 반응을 보이지 않아 마치 벽에게 이야기하는 것처럼 느껴질 때가 있나요?", a: "감정적인 교류가 거의 없고 당신의 감정이 무시당한다고 느낀다면, 당신은 그 관계 안에서 정서적으로 고립된 것이나 마찬가지일 수 있습니다." },
+      { q: "⛓️ 상대방이 '당신은 정말 나 없으면 어쩔 뻔했어?' 와 같은 말을 은연중에 또는 직접적으로 자주 하나요?", a: "당신을 무력하게 만들어 자신에게 의존하게 만들려는 말은, 심리적으로 당신을 지배하려는 수단일 수 있습니다. 이는 당신의 자율성과 독립성을 약화시킬 수 있습니다." },
+      { q: "⚖️ 같은 상황에 대해 상대방은 '그럴 수 있는 일'이라고 넘어가면서, 당신에게는 '어떻게 그럴 수 있냐'며 엄격한 잣대를 적용하나요?", a: "이중잣대는 관계의 불공평함을 나타냅니다. 당신에게만 유독 엄격한 기준이 적용되고 있는지 주의 깊게 살펴보세요." },
+      { q: "🧊 당신이 속상한 마음에 위로나 공감을 기대하며 이야기할 때, 오히려 차갑거나 냉담한 반응만 돌아와 더 상처받은 적이 있나요?", a: "따뜻한 위로나 공감 대신 냉정한 반응만 돌아온다면, 마음에 상처가 쌓이고 관계에 대한 신뢰도 점차 깨질 수 있습니다." },
+      { q: "🔭 당신이 오늘 무엇을 하는지, 누구를 만나는지 등 일정을 상세히 보고해야 하거나, 상대방이 당신의 사생활에 지나치게 간섭한다고 느끼나요?", a: "당신의 개인 시간, 친구 관계, 사회생활까지 사사건건 통제하려 한다면, 이는 건강한 관계의 범위를 넘어선 행동일 수 있습니다." },
+      { q: "👀 물건을 사거나 어떤 결정을 내릴 때, 혹은 자신의 의견을 말하기 전에 자신도 모르게 상대방의 허락이나 눈치를 살피게 되나요?", a: "스스로의 판단을 믿지 못하고 계속해서 상대방의 반응을 살피거나 허락을 구하려 한다면, 당신은 관계 안에서 주체성을 잃어가고 있다는 신호일 수 있습니다." },
+      { q: "🤷‍♀️ 당신의 말에 대해 '그래서 뭘 어쩌라는 거야?', '그게 뭐?' 와 같은 무성의하거나 비꼬는 듯한 말을 자주 듣나요?", a: "당신의 말에 대해 '어쩌라고' 식의 반응을 보이는 것은 당신을 무시하고 존중하지 않는 태도일 수 있습니다." },
+      { q: "🪫 그 사람을 만나고 오면 즐거움이나 편안함보다는 심리적으로 지치고 기운이 빠지는 듯한 느낌을 자주 받나요?", a: "만남이 에너지를 충전시켜주기보다 오히려 소진시킨다면, 그 관계가 당신에게 감정적으로 부담을 주고 있을 가능성이 높습니다." },
+      { q: "🗿 어떤 문제에 대해 당신이 아무리 진지하게 이야기해도 상대방은 들으려 하지 않거나 바꿀 의지가 없어 보여, 결국 대화를 포기하게 되나요?", a: "당신의 의견을 경청하고 함께 문제를 해결하려는 의지가 보이지 않는다면, 그 사람은 관계 개선에 대한 책임감이 부족한 것일 수 있습니다." },
+      { q: "👻 갈등이 있었을 때, 상대방은 제대로 된 사과 없이 시간이 지나면 아무 일 없었다는 듯이 넘어가거나, 며칠씩 연락을 피하는 행동을 보이나요?", a: "문제를 제대로 해결하고 넘어가지 않으면 비슷한 갈등이 반복될 수밖에 없습니다. 이는 문제를 덮어두는 것이지 해결하는 것이 아닙니다." },
+      { q: "📢 대화할 때 주로 자기 이야기만 하거나, 자신의 의견만이 옳다고 주장하며 당신의 생각이나 의견은 들으려 하지 않나요?", a: "일방적으로 자기 생각만 옳다고 하거나 자기 말만 하는 것은 진정한 소통이 아니라 '명령'이나 '지시'에 가까울 수 있습니다." },
+      { q: "💣 상대방이 당신을 나쁜 사람으로 몰아가거나, 관계를 끝낼 것처럼 암시하며 당신의 감정을 불안하게 만들어 원하는 것을 얻으려 하나요?", a: "죄책감을 심거나, 무시하거나, 이별을 암시하며 협박하는 것은 명백한 감정적 학대입니다. 이는 관계의 위험 수위가 매우 높다는 증거일 수 있습니다." },
+      { q: "✂️ 상대방이 싫어한다는 이유로 당신의 오랜 친구 관계를 멀리하게 되거나, 좋아하던 취미 활동을 그만둔 적이 있나요?", a: "상대방에게 맞추느라 당신의 소중한 관계나 자아를 잃어버리고 있다면, 그것은 건강한 타협이 아니라 일방적인 포기일 수 있습니다." },
+      { q: "🌀 분명 당신의 기억이 맞다고 생각하는데, 상대방이 계속해서 '그런 적 없다', '네가 잘못 기억하는 것이다'라고 말해서 결국 자신을 의심하게 되나요?", a: "대화를 통해 오히려 더 혼란스러워지고 '내가 이상한가?'라는 생각이 든다면, 당신은 가스라이팅을 경험하고 있을 수 있습니다." },
+      { q: "❓ '내가 너무 예민한 걸까?', '어쩌면 모든 게 내 문제일지도 몰라' 와 같은 자책이나 자기 의심을 자주 하게 되나요?", a: "지속적으로 자신을 탓하고 의심하게 된다면, 당신의 자존감이 관계 안에서 심각하게 손상되었다는 신호일 수 있습니다." },
+      { q: "🛡️ 상대방과 대화할 때, 어떤 말을 해도 공격받거나 비난받을 것 같아 미리 방어적인 태세를 취하게 되나요?", a: "대화할 때마다 자신을 보호하기 위해 갑옷을 입어야 한다면, 그 관계는 더 이상 당신에게 안전하고 편안한 공간이 아닐 가능성이 높습니다." },
+      { q: "🎭 상대방이 다른 사람들 앞에서는 당신에게 매우 잘해주지만, 단둘이 있을 때나 남들이 보지 않을 때는 차갑거나 무관심하게 대하나요?", a: "타인에게 보이는 모습과 실제 모습이 크게 다르다면, 그 관계는 진실성보다는 외부의 시선이나 체면을 더 중요하게 여기는 것일 수 있습니다." },
+      { q: "🏃‍♀️ 현재 관계에 대해 진지하게 '이 관계를 이제 그만 끝내고 싶다' 또는 '여기서 벗어나고 싶다'고 생각해 본 적이 있나요?", a: "관계를 끝내고 싶거나 도망치고 싶다는 생각이 들었다는 것 자체가, 이 관계가 당신에게 더 이상 긍정적인 영향을 주지 못하고 있다는 가장 강력한 신호일 수 있습니다." },
+      { q: "🚩 콕 집어 말하기는 어렵지만, 이 관계에서 뭔가 '쎄하다'거나 '정상적이지 않다'는 느낌을 자주 받나요?", a: "말로 명확히 설명하기는 어렵지만 '뭔가 잘못되었다'고 느끼는 당신의 직감을 무시하지 마세요. 그것이 가장 정확한 위험 신호일 수 있습니다. 당신의 느낌을 신뢰하세요." },
+      { q: "😔 당신이 힘든 일을 겪고 있을 때, 상대방은 '너만 힘든 줄 아느냐'며 당신의 어려움을 대수롭지 않게 여기거나 무시하나요?", a: "당신의 감정이나 어려움을 하찮게 여기는 것은 정서적 무시의 한 형태입니다. 힘든 마음을 나눌 수 없다면 건강한 관계라고 보기 어렵습니다." },
+      { q: "🙄 상대방이 '다 너 잘되라고 하는 소리야'라며 당신이 원치 않는 조언이나 비판을 일방적으로 자주 하나요?", a: "진정한 걱정과 지지는 비난이나 일방적인 조언의 형태가 아닌, 존중과 경청에서 비롯됩니다. 이는 조언을 빙자한 통제일 수 있습니다." },
+      { q: "🤫 당신의 개인적인 비밀이나 약점을 다른 사람에게 쉽게 이야기하거나, 당신을 조롱하는 데 사용한 적이 있나요?", a: "비밀을 지키지 않는 것은 신뢰를 깨뜨리는 행동입니다. 당신의 약점을 다른 사람에게 가볍게 이야기하거나 공격의 빌미로 삼는 것은 매우 위험한 신호입니다." },
+      { q: "😬 당신이 새로운 것을 배우거나 개인적인 성장을 위해 도전하려고 할 때, 상대방이 비웃거나 부정적인 반응으로 당신의 의욕을 꺾나요?", a: "당신의 성장을 지지하지 않고 오히려 방해하거나 위축시킨다면, 그 사람은 당신이 발전하는 것을 원치 않거나 두려워하는 것일 수 있습니다." },
+      { q: "😒 상대방이 '너는 원래 그런 사람이잖아'라며 당신을 자신의 틀에 맞춰 단정 짓거나 변화의 가능성을 무시하나요?", a: "사람은 누구나 변하고 성장할 수 있습니다. 과거의 모습이나 상대방의 고정관념에 당신을 가두려는 것은 존중이 결여된 태도입니다." },
+      { q: "📞 당신이 상대방의 전화나 메시지에 바로 응답하지 못했을 때, 상대방이 과도하게 화를 내거나 며칠 동안 삐친 태도를 보이나요?", a: "모든 사람이 항상 즉각적으로 응답할 수는 없습니다. 이는 상대방의 과도한 통제욕구를 나타내거나, 당신의 개인적인 시간과 상황을 존중하지 않는 것일 수 있습니다." },
+      { q: "😟 상대방이 자신의 과거 연애 상대와 당신을 자주 비교하며 당신의 자존감을 떨어뜨리나요?", a: "과거의 사람과 현재의 당신을 비교하는 것은 매우 부적절하며 자존감을 심각하게 훼손시키는 행동입니다. 당신은 그 자체로 존중받아야 할 존재입니다." },
+      { q: "🤐 당신이 좋아하는 것이나 취미 활동에 대해 '수준 낮다'거나 '시간 낭비다'라며 은근히 무시하거나 비하하나요?", a: "당신의 취향이나 관심사를 존중하지 않는 것은 당신이라는 사람 자체를 무시하는 것과 같습니다. 서로의 다름을 인정하고 존중하는 것이 건강한 관계의 기본입니다." },
+      { q: "😰 당신의 사소한 실수에 대해 상대방이 지나치게 크게 화를 내거나, 며칠씩 냉담한 태도로 당신을 불안하게 만드나요?", a: "작은 일에 과도하게 반응하는 것은 감정 조절의 문제이거나, 당신을 심리적으로 압박하여 길들이려는 의도일 수 있습니다. 이는 당신을 지속적인 불안 상태에 놓이게 합니다." },
+      { q: "👀 당신이 어떤 옷을 입는지, 어떻게 자신을 꾸미는지 등 외모에 대해 일일이 지적하거나 자신의 취향대로 바꾸려고 간섭하나요?", a: "당신의 스타일과 외모는 당신 스스로 결정할 권리가 있습니다. 외모에 대한 잦은 지적이나 강요는 불쾌감을 유발하고 자존감을 떨어뜨릴 수 있습니다." },
+      { q: "🗣️ 다른 사람들 앞에서는 당신에게 매우 다정하고 잘해주지만, 단둘이 있을 때나 사적인 공간에서는 갑자기 차갑거나 무관심하게 변하나요?", a: "타인의 시선이 있을 때와 없을 때의 태도가 극명하게 다르다면, 그 관계는 진실성보다는 외부 평가나 이미지 관리를 더 중요하게 생각하는 것일 수 있습니다." },
+      { q: "🤔 어떤 문제가 발생했을 때, 명백히 상대방의 잘못임에도 불구하고 교묘하게 상황을 왜곡하여 결국 당신의 탓으로 돌리나요?", a: "자신의 잘못을 인정하지 않고 모든 책임을 당신에게 떠넘기는 것은 매우 불공정한 행동입니다. 이는 당신에게 부당한 죄책감을 심어주고 관계를 병들게 합니다." },
+      { q: "😥 당신이 아프거나 힘든 상황에 처했을 때, 상대방은 진심으로 걱정하기보다 오히려 귀찮아하거나 부담스러워하는 듯한 태도를 보이나요?", a: "정말로 서로를 아끼는 관계라면 상대방이 어려울 때 가장 먼저 걱정하고 지지해주는 것이 자연스럽습니다. 이러한 무관심은 이기적인 태도의 반영일 수 있습니다." },
+      { q: "😠 상대방이 '너 하나만 참으면 모든 것이 평화로워진다'라며 관계의 문제를 해결하기 위해 당신에게만 일방적인 희생이나 양보를 강요하나요?", a: "건강한 관계는 함께 노력하고 만들어가는 것입니다. 한쪽에게만 지속적인 희생을 강요하는 것은 불공평하며 결국 관계를 지속 불가능하게 만듭니다." },
+      { q: "😶 당신과의 중요한 약속(기념일, 만남 약속 등)을 자주 잊어버리거나, 약속을 했음에도 불구하고 가볍게 어기거나 변경하는 일이 잦나요?", a: "약속을 지키지 않는 것은 당신과 당신의 시간을 존중하지 않는다는 의미일 수 있습니다. 이는 관계의 기본적인 신뢰를 손상시키는 행동입니다." },
+      { q: "💸 금전적인 문제에 있어서 상대방이 당신에게만 유독 엄격한 기준을 적용하거나, 당신의 돈을 마치 자신의 돈처럼 쉽게 생각하고 함부로 사용하려 하나요?", a: "금전 관계는 상호 존중과 신뢰를 바탕으로 투명하고 공정해야 합니다. 한쪽에게만 경제적 부담을 지우거나 상대방의 재산을 존중하지 않는 태도는 건강하지 않습니다." },
+      { q: "😔 당신이 인생의 중요한 결정을 내려야 하거나 어려움에 직면했을 때, 상대방은 실질적인 도움이나 정서적 지지를 주기보다 오히려 비난하거나 방관하나요?", a: "어려운 시기에 기댈 수 없고 오히려 더 힘들게 만드는 사람은 건강한 파트너라고 보기 어렵습니다. 지지 대신 비난만 돌아온다면 관계를 심각하게 재고해볼 필요가 있습니다." },
+      { q: "🤨 당신이 어떤 말을 했을 때, 상대방은 그 말의 본래 의도를 자꾸 왜곡해서 듣거나 최악의 상황으로 가정하여 당신을 나쁜 사람으로 몰아가나요?", a: "끊임없이 당신의 말을 부정적으로 해석하고 공격의 빌미로 삼는다면, 이는 건설적인 대화가 아니라 갈등을 유발하려는 의도일 수 있습니다. 늘 자신을 변호해야 하는 상황은 매우 지치게 만듭니다." },
+      { q: "😴 당신의 이야기는 지루해하거나 건성으로 듣는 반면, 자기 이야기만 신나서 끝없이 늘어놓는 경향이 있나요?", a: "건강한 대화는 쌍방향 소통입니다. 일방적으로 한 사람만 이야기하고 다른 사람은 듣기만 하는 관계는 불균형하며, 존중받지 못한다는 느낌을 줄 수 있습니다." },
+      { q: "🤫 상대방이 '이건 너한테만 특별히 말하는 건데...'라며 다른 사람에 대한 험담이나 부정적인 이야기를 자주 하고, 당신에게도 그 의견에 동조하길 바라나요?", a: "타인에 대한 험담을 즐기는 사람은 언젠가 당신에 대한 이야기도 부정적으로 퍼뜨릴 수 있습니다. 또한, 당신을 부정적인 감정의 소용돌이에 끌어들이는 것은 건강하지 않습니다." },
+      { q: "😬 당신이 자신의 가족이나 오랜 친구들을 만나는 것에 대해 상대방이 노골적으로 싫어하거나 불편한 기색을 보이며 당신의 인간관계를 제한하려 하나요?", a: "당신의 소중한 인간관계를 존중하지 않고 고립시키려는 행동은 매우 위험한 신호입니다. 건강한 관계는 서로의 독립적인 삶과 관계를 지지합니다." },
+      { q: "😵‍💫 상대방과 대화하고 나면, 명확했던 문제나 상황이 오히려 더 혼란스럽고 당신의 생각이나 판단이 틀린 것처럼 느껴지게 만드나요?", a: "지속적으로 당신을 혼란스럽게 만들고 자신의 생각을 은밀하게 주입하려 한다면, 이는 가스라이팅의 일종일 수 있습니다. 당신의 판단력을 흐리게 만들어 심리적으로 지배하려는 의도일 수 있습니다." },
+      { q: "🥺 상대방이 '네가 정말 날 사랑한다면 이 정도는 해줄 수 있는 거 아니야?'와 같은 말로 당신의 감정을 이용하여 부담스러운 요구나 희생을 강요하나요?", a: "사랑이나 관계를 빌미로 무리한 요구를 하는 것은 건강한 방식이 아닙니다. 이는 감정적인 협박이나 착취에 해당할 수 있습니다." },
+      { q: "🤐 특정 주제에 대해서는 상대방이 극도로 예민하게 반응하거나 대화를 회피하여, 당신이 그 주제에 대해 아예 말을 꺼내지 못하게 만드나요? (마치 건드리면 안 되는 '역린'처럼)", a: "특정 주제를 대화의 금기 영역으로 만드는 것은 열린 소통을 가로막는 행동입니다. 건강한 관계에서는 어떤 불편한 이야기라도 나눌 수 있어야 합니다." },
+      { q: "🙏 당신이 어떤 행동에 대해 분명하게 '싫다'거나 '하지 말아 달라'고 요청했음에도 불구하고, 상대방이 당신의 의사를 무시하고 똑같은 행동을 반복하나요?", a: "당신의 명확한 거절 의사를 무시하는 것은 당신의 경계를 존중하지 않는다는 명백한 신호입니다. 이는 당신의 자율성과 안전을 심각하게 위협하는 행동일 수 있습니다." }
+  ];
+  
+  let currentQuestionsData = []; 
+  let monthlyData = [];
+  let currentQuestion = 1;
+  const answers = {};
+  
+  let questionNavButtonsContainer = null; 
+
+  const localStorageAvailable = isLocalStorageAvailable();
+
+  function isLocalStorageAvailable() {
+    try {
+      const testKey = '__testLocalStorage__';
+      localStorage.setItem(testKey, testKey);
+      localStorage.removeItem(testKey);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function initialize() {
+    if (localStorageAvailable) {
+      try {
+        const savedData = localStorage.getItem('emotionalDMZTrackerData');
+        if (savedData) {
+          monthlyData = JSON.parse(savedData);
+        }
+      } catch (e) {
+        console.error('LocalStorage에서 데이터를 불러오는 중 오류 발생:', e);
+        monthlyData = [];
+      }
+    }
+    createQuestionNavigationButtonsContainer();
+    renderStickySteps();
+    bindEventListeners();
+    showSection('intro-card');
+    checkMobileNav(); 
+    window.addEventListener('resize', checkMobileNav); 
+  }
+  
+  const introCard = document.getElementById('intro-card');
+  const testArea = document.getElementById('test-area');
+  const questionCard = document.getElementById('question-card');
+  const resultCardWrapper = document.getElementById('result-card-wrapper');
+  const startBtn = document.getElementById('start-btn');
+  const progressBar = document.getElementById('progress-bar');
+  const progressText = document.getElementById('progress-text');
+  const progressContainer = document.getElementById('progress-container');
+  const resultContainer = document.getElementById('result-container');
+  const resultSafe = document.getElementById('result-safe');
+  const resultWarning = document.getElementById('result-warning');
+  const resultDanger = document.getElementById('result-danger');
+  const safePercentageEl = document.getElementById('safe-percentage');
+  const warningPercentageEl = document.getElementById('warning-percentage');
+  const dangerPercentageEl = document.getElementById('danger-percentage');
+  const detailedAnalysisCard = document.getElementById('detailed-analysis-card');
+  const detailedAnalysisContainer = document.getElementById('detailed-analysis-container');
+  
+  const learnMoreBtn = document.getElementById('learn-more-btn');
+  const modalOverlay = document.getElementById('modal-overlay');
+  const modalClose = document.getElementById('modal-close');
+  const toastMessageEl = document.getElementById('toast-message');
+
+  const restartBtn = document.getElementById('restart-btn');
+  const saveImageBtn = document.getElementById('save-image-btn');
+  const copyLinkBtn = document.getElementById('copy-link-btn');
+
+  const stickyStepsIndicatorWrapperEl = document.getElementById('stickyStepsIndicatorWrapper');
+  const pageHeaderEl = document.getElementById('pageHeader');
+
+  function showSection(sectionId) {
+      [introCard, testArea, resultCardWrapper].forEach(el => {
+          if(el) {
+            el.style.display = 'none';
+            el.classList.remove('visible');
+          }
+      });
+      
+      if (questionCard) questionCard.classList.remove('visible');
+
+      const elementToShow = document.getElementById(sectionId);
+      if (elementToShow) {
+          elementToShow.style.display = 'block';
+          setTimeout(() => elementToShow.classList.add('visible'), 10); 
+      }
+
+      if (sectionId === 'test-area') {
+          if(stickyStepsIndicatorWrapperEl) stickyStepsIndicatorWrapperEl.style.display = 'flex';
+          if (questionNavButtonsContainer) questionNavButtonsContainer.style.display = 'flex';
+          updateStickyStepsUI(1); 
+          checkMobileNav(); 
+      } else if (sectionId === 'result-card-wrapper') {
+          if(stickyStepsIndicatorWrapperEl) stickyStepsIndicatorWrapperEl.style.display = 'flex';
+          if (questionNavButtonsContainer) questionNavButtonsContainer.style.display = 'none';
+          updateStickyStepsUI(2); 
+          document.body.classList.remove('mobile-nav-active'); 
+      } else if (sectionId === 'intro-card') {
+          if(stickyStepsIndicatorWrapperEl) stickyStepsIndicatorWrapperEl.style.display = 'flex'; 
+          if (questionNavButtonsContainer) questionNavButtonsContainer.style.display = 'none';
+          updateStickyStepsUI(0); 
+          document.body.classList.remove('mobile-nav-active'); 
+      }
+  }
+
+  function checkMobileNav() {
+    if (window.innerWidth <= 768 && testArea.style.display === 'block') {
+        document.body.classList.add('mobile-nav-active');
+    } else {
+        document.body.classList.remove('mobile-nav-active');
+    }
+  }
+
+
+  function bindEventListeners() {
+      if(learnMoreBtn) learnMoreBtn.addEventListener('click', showModal);
+      if(modalClose) modalClose.addEventListener('click', hideModal);
+      if(modalOverlay) {
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) hideModal();
+        });
+      }
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && modalOverlay && modalOverlay.classList.contains('is-active')) {
+            hideModal();
+        }
+      });
+
+      if(startBtn) startBtn.addEventListener('click', startTest);
+      if(restartBtn) restartBtn.addEventListener('click', restartTest);
+      if(saveImageBtn) saveImageBtn.addEventListener('click', saveResultAsImage);
+      if(copyLinkBtn) copyLinkBtn.addEventListener('click', copyPageLink);
+
+      window.addEventListener('scroll', handleScrollForStickyHeader);
+      handleScrollForStickyHeader();
+  }
+  
+  function handleScrollForStickyHeader() {
+    if (!stickyStepsIndicatorWrapperEl || !pageHeaderEl) return;
+    const scrollThreshold = pageHeaderEl.offsetHeight; 
+    const currentScrollY = window.pageYOffset;
+
+    if (currentScrollY > scrollThreshold) {
+        if (!stickyStepsIndicatorWrapperEl.classList.contains('scrolled')) {
+            stickyStepsIndicatorWrapperEl.classList.add('scrolled');
+            if (stickyStepsIndicatorWrapperEl.style.display === 'flex') { 
+                 document.body.classList.add('fixed-header-active');
+            }
+        }
+    } else {
+        if (stickyStepsIndicatorWrapperEl.classList.contains('scrolled')) {
+            stickyStepsIndicatorWrapperEl.classList.remove('scrolled');
+            document.body.classList.remove('fixed-header-active');
+        }
+    }
+  }
+
+  function showModal() {
+    if (!modalOverlay) return;
+    modalOverlay.style.display = 'flex';
+    setTimeout(() => { // Add a slight delay to ensure display:flex is applied before classList.add
+        modalOverlay.classList.add('is-active');
+    }, 10);
+    document.body.style.overflow = 'hidden';
+  }
+
+  function hideModal() {
+    if (!modalOverlay) return;
+    modalOverlay.classList.remove('is-active');
+    
+    // Listen for transition end to set display to none
+    // This ensures the fade-out animation completes
+    const modalContainer = modalOverlay.querySelector('.modal-container');
+    if (modalContainer) {
+        // Get transition duration from CSS
+        const transitionDuration = parseFloat(getComputedStyle(modalContainer).transitionDuration) * 1000;
+        setTimeout(() => {
+            modalOverlay.style.display = 'none';
+        }, transitionDuration);
+    } else {
+        modalOverlay.style.display = 'none'; // Fallback if no container or transition
+    }
+    document.body.style.overflow = '';
+  }
+
+
+  function selectRandomQuestions(sourceArray, count) {
+    const shuffled = [...sourceArray].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+  }
+
+  function startTest() {
+    showSection('test-area');
+    
+    currentQuestionsData = selectRandomQuestions(allQuestionsData, QUESTIONS_PER_TEST);
+
+    for (let i = 1; i <= QUESTIONS_PER_TEST; i++) {
+      answers[`q${i}`] = undefined;
+    }
+    currentQuestion = 1;
+    if(progressBar) progressBar.style.width = '0%';
+    
+    showQuestion(currentQuestion);
+    updateProgress();
+    if (questionNavButtonsContainer) questionNavButtonsContainer.style.display = 'flex';
+  }
+
+  function restartTest() {
+    showSection('intro-card');
+  }
+  
+  const stickyStepsConfig = [
+    { label: '안내', duration: '시작 전' },
+    { label: '질문 진행', duration: '25개 문항' },
+    { label: '결과 확인', duration: '분석 완료' }
+  ];
+
+  function renderStickySteps() {
+      const indicatorContainer = stickyStepsIndicatorWrapperEl.querySelector('.steps-indicator');
+      if (!indicatorContainer) return;
+      indicatorContainer.innerHTML = '';
+
+      stickyStepsConfig.forEach((stepConf, index) => {
+          const stepElementHTML = `
+              <div class="step" id="sticky-step-${index}">
+                  <div class="step-icon">${index + 1}</div>
+                  <div class="step-label">${stepConf.label}<small>(${stepConf.duration})</small></div>
+              </div>
+          `;
+          indicatorContainer.insertAdjacentHTML('beforeend', stepElementHTML);
+      });
+      updateStickyStepsUI(0);
+  }
+  
+  function updateStickyStepsUI(activeIndex) {
+    if (!stickyStepsIndicatorWrapperEl) return;
+    const steps = stickyStepsIndicatorWrapperEl.querySelectorAll('.step');
+    steps.forEach((step, i) => {
+        step.classList.remove('active', 'completed');
+        if (i < activeIndex) {
+            step.classList.add('completed');
+        } else if (i === activeIndex) {
+            step.classList.add('active');
+        }
+    });
+  }
+
+  function createQuestionNavigationButtonsContainer() {
+    questionNavButtonsContainer = document.getElementById('question-nav-buttons');
+    if (questionNavButtonsContainer) questionNavButtonsContainer.style.display = 'none';
+  }
+
+  function updateQuestionNavigationButtons() {
+    if (!questionNavButtonsContainer) return;
+    questionNavButtonsContainer.innerHTML = ''; 
+
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'btn btn-secondary';
+    prevBtn.id = 'prev-btn';
+    prevBtn.innerHTML = '<span style="margin-right: 4px;">◀</span> 이전';
+    prevBtn.disabled = currentQuestion === 1;
+    prevBtn.addEventListener('click', () => {
+      if (currentQuestion > 1) {
+        currentQuestion--;
+        showQuestion(currentQuestion);
+        updateProgress();
+      }
+    });
+
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'btn btn-primary';
+    nextBtn.id = 'next-btn';
+    nextBtn.innerHTML = currentQuestion === QUESTIONS_PER_TEST ? '결과 보기 <span style="margin-left: 4px;">✓</span>' : '다음 <span style="margin-left: 4px;">▶</span>';
+    nextBtn.addEventListener('click', () => {
+      if (answers[`q${currentQuestion}`] === undefined) { 
+          nextBtn.classList.add('shake');
+          setTimeout(() => nextBtn.classList.remove('shake'), 400);
+          showToast('답변을 선택해주세요.', true);
+          return;
+      }
+      handleNextStep(true); 
+    });
+
+    questionNavButtonsContainer.appendChild(prevBtn);
+    questionNavButtonsContainer.appendChild(nextBtn);
+  }
+
+
+  function createQuestionHTML(index) {
+    const questionData = currentQuestionsData[index - 1];
+    if (!questionData) return '<p>질문을 불러오는 데 문제가 발생했습니다.</p>'; 
+    const questionText = questionData.q; 
+    const yesValue = String(YES_SCORE);
+    const noValue = String(NO_SCORE);
+
+    return `
+        <div class="question-container active" id="q${index}">
+            <div class="question">
+                <div class="question-header">
+                    <div class="question-number">${index}</div>
+                    <div class="question-title">${questionText}</div>
+                </div>
+                <div class="options">
+                    <div class="binary-options">
+                        <div class="binary-option">
+                            <input id="q${index}-1" name="q${index}" type="radio" value="${yesValue}" data-value="${yesValue}" ${answers[`q${index}`] === yesValue ? 'checked' : ''}/>
+                            <label class="binary-label" for="q${index}-1">
+                                <span class="emoji-symbol">✅</span>
+                                <span>예</span>
+                            </label>
+                        </div>
+                        <div class="binary-option">
+                            <input id="q${index}-2" name="q${index}" type="radio" value="${noValue}" data-value="${noValue}" ${answers[`q${index}`] === noValue ? 'checked' : ''}/>
+                            <label class="binary-label" for="q${index}-2">
+                                <span class="emoji-symbol">❌</span>
+                                <span>아니오</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+  }
+
+  function showQuestion(index) {
+    if(!questionCard) return;
+    const container = questionCard.querySelector('.card-body');
+    if(container) {
+        container.innerHTML = createQuestionHTML(index);
+        container.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                saveAnswer(currentQuestion);
+                setTimeout(() => handleNextStep(false), 200); 
+            });
+        });
+    }
+    updateQuestionNavigationButtons(); 
+    if (questionCard && !questionCard.classList.contains('visible')) {
+        setTimeout(() => questionCard.classList.add('visible'), 10); 
+    }
+  }
+  
+  function handleNextStep(isManualNextClick) {
+    if (isManualNextClick && answers[`q${currentQuestion}`] === undefined) { 
+        const nextBtn = document.getElementById('next-btn');
+        if(nextBtn) {
+            nextBtn.classList.add('shake');
+            setTimeout(() => nextBtn.classList.remove('shake'), 400);
+        }
+        showToast('답변을 선택해주세요.', true);
+        return;
+    }
+
+    if (answers[`q${currentQuestion}`] !== undefined) { 
+        if (currentQuestion < QUESTIONS_PER_TEST) { 
+            currentQuestion++;
+            showQuestion(currentQuestion);
+            updateProgress();
+        } else {
+            showResults(); // 마지막 질문 후 결과 표시
+        }
+    }
+  }
+
+
+  function updateProgress() {
+    if(!progressBar || !progressText) return;
+    const perc = (currentQuestion / QUESTIONS_PER_TEST) * 100;
+    progressBar.style.width = perc + '%';
+    progressText.textContent = `${currentQuestion}/${QUESTIONS_PER_TEST}`; 
+    updateStickyStepsUI(1);
+  }
+
+  function saveAnswer(index) {
+    const sel = document.querySelector(`input[name="q${index}"]:checked`);
+    answers[`q${index}`] = sel ? sel.value : undefined; 
+  }
+  
+  function showResults() {
+    const score = calculateFinalScore();
+    if (score === -1) { 
+        showToast("모든 질문에 답변해주세요.", true);
+        for (let i = 1; i <= QUESTIONS_PER_TEST; i++) {
+            if (answers[`q${i}`] === undefined) {
+                currentQuestion = i;
+                showQuestion(currentQuestion);
+                updateProgress();
+                return; 
+            }
+        }
+        return; 
+    }
+    showSection('result-card-wrapper'); 
+    if(resultContainer) resultContainer.style.display = 'block'; // 결과 내용 컨테이너 표시
+    
+    displayResultCard(score);
+    displayDetailedAnalysis();
+    updateMonthlyHistory(score);
+    renderChart();
+
+    const currentDateEl = document.getElementById('current-date');
+    if(currentDateEl) currentDateEl.textContent = getFormattedDate();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+
+  function calculateFinalScore() {
+    let totalScore = 0;
+    let allAnswered = true;
+    for (let i = 1; i <= QUESTIONS_PER_TEST; i++) { 
+        if (answers[`q${i}`] === undefined) { 
+            allAnswered = false;
+            break;
+        }
+        totalScore += parseInt(answers[`q${i}`]);
+    }
+    return allAnswered ? totalScore : -1;
+  }
+  
+  function displayResultCard(score) {
+      if(resultSafe) resultSafe.style.display = 'none';
+      if(resultWarning) resultWarning.style.display = 'none';
+      if(resultDanger) resultDanger.style.display = 'none';
+
+      if (score >= HIGH_RISK_THRESHOLD) {
+        if(resultDanger) resultDanger.style.display = 'block';
+        if(dangerPercentageEl) dangerPercentageEl.textContent = score + '점';
+      } else if (score >= WARNING_THRESHOLD) {
+        if(resultWarning) resultWarning.style.display = 'block';
+        if(warningPercentageEl) warningPercentageEl.textContent = score + '점';
+      } else {
+        if(resultSafe) resultSafe.style.display = 'block';
+        if(safePercentageEl) safePercentageEl.textContent = score + '점';
+      }
+  }
+
+  function displayDetailedAnalysis() {
+    if(!detailedAnalysisContainer || !detailedAnalysisCard) return;
+    let yesCount = 0;
+    let analysisHTML = '<ul class="detailed-analysis-list">';
+
+    for (let i = 1; i <= QUESTIONS_PER_TEST; i++) { 
+        if (answers[`q${i}`] === String(YES_SCORE)) {
+            yesCount++;
+            const item = currentQuestionsData[i - 1];
+            if (!item) continue; 
+            analysisHTML += `
+              <li class="detailed-analysis-item">
+                <div class="item-icon"><i class="fas fa-exclamation-circle"></i></div>
+                <div class="item-content">
+                    <div class="item-question">${item.q}</div>
+                    <p class="item-explanation">${item.a}</p>
+                </div>
+              </li>
+            `;
+        }
+    }
+    analysisHTML += '</ul>';
+
+    if (yesCount > 0) {
+        detailedAnalysisContainer.innerHTML = analysisHTML;
+        detailedAnalysisCard.style.display = 'block';
+    } else {
+        detailedAnalysisContainer.innerHTML = '<p style="text-align:center; color:var(--color-text-secondary); padding: var(--space-md) 0;">모든 항목에 대해 건강한 신호를 보여주셨어요! <span class="emoji">🎉</span></p>';
+        detailedAnalysisCard.style.display = 'block';
+    }
+  }
+
+  function updateMonthlyHistory(currentScore) {
+      const improvementMessageEl = document.getElementById('improvement-message');
+      const changeRateEl = document.getElementById('change-rate');
+      if (!localStorageAvailable) {
+        if(improvementMessageEl) improvementMessageEl.textContent = '회복 여정 추적 기능이 비활성화되어 있습니다.';
+        if(changeRateEl) changeRateEl.textContent = 'N/A';
+        return;
+      }
+      
+      try {
+        const today = new Date();
+        const currentMonthKey = `${today.getFullYear()}-${today.getMonth()}`;
+        const newPoint = { month: today.toLocaleString('ko-KR', { month: 'long' }), score: currentScore, date: today.toISOString(), key: currentMonthKey };
+
+        const currentMonthIndex = monthlyData.findIndex(item => item.key === currentMonthKey);
+        if (currentMonthIndex > -1) {
+            monthlyData[currentMonthIndex] = newPoint;
+        } else {
+            monthlyData.push(newPoint);
+        }
+
+        monthlyData.sort((a,b) => new Date(a.date) - new Date(b.date));
+        localStorage.setItem('emotionalDMZTrackerData', JSON.stringify(monthlyData));
+        
+        updateChangeMessage(currentScore);
+
+      } catch (e) {
+        console.error('LocalStorage 데이터 처리 중 오류 발생:', e);
+        if(improvementMessageEl) improvementMessageEl.textContent = '회복 여정 데이터를 처리하는 중 오류가 발생했습니다.';
+        if(changeRateEl) changeRateEl.textContent = '오류';
+      }
+  }
+
+  function updateChangeMessage(currentScore) {
+      const improvementMessageEl = document.getElementById('improvement-message');
+      const changeRateEl = document.getElementById('change-rate');
+      if(!improvementMessageEl || !changeRateEl) return;
+
+      let improvementMessageText = '';
+      let changeRateText = '첫 측정';
+
+      if (monthlyData.length > 1) {
+        const prevScore = monthlyData[monthlyData.length - 2].score;
+        const lastScoreChange = currentScore - prevScore;
+
+        if (lastScoreChange > 10) {
+          improvementMessageText = `😨 주의! 관계 위험도가 ${lastScoreChange}점이나 올랐어요. 무슨 일이 있었는지 꼭 돌아보세요.`;
+        } else if (lastScoreChange > 0) {
+          improvementMessageText = `🤔 관계 위험도가 ${lastScoreChange}점 살짝 올랐네요. 조금 더 신경 써주세요.`;
+        } else if (lastScoreChange === 0) {
+          improvementMessageText = '🌱 지난달과 같아요. 꾸준히 내 마음을 살피는 것만으로도 대단해요.';
+        } else {
+          improvementMessageText = `💪 잘하고 있어요! 관계 위험도가 ${Math.abs(lastScoreChange)}점이나 줄었어요!`;
+        }
+        changeRateText = (lastScoreChange >= 0 ? '+' : '') + lastScoreChange + '점';
+      } else {
+        improvementMessageText = '🌱 첫 체크 완료! 한 달 뒤에 또 와서 내 마음이 어떻게 변하는지 지켜봐요.';
+      }
+      changeRateEl.textContent = changeRateText;
+      improvementMessageEl.textContent = improvementMessageText;
+  }
+  
+  function saveResultAsImage() {
+    const resultElement = document.getElementById('result-card-wrapper');
+    const buttonGroup = resultCardWrapper.querySelector('.button-group');
+    const disclaimerText = resultCardWrapper.querySelector('.button-group + p');
+
+    if (!resultElement || typeof html2canvas === 'undefined') {
+        showToast('이미지 저장 기능을 사용할 수 없습니다.', true);
+        return;
+    }
+
+    if (buttonGroup) buttonGroup.style.display = 'none'; 
+    if (disclaimerText) disclaimerText.style.display = 'none'; 
+    
+    window.scrollTo(0,0);
+
+    setTimeout(() => {
+        html2canvas(resultElement, {
+            backgroundColor: getComputedStyle(document.body).getPropertyValue('--color-background').trim(),
+            useCORS: true,
+            scale: window.devicePixelRatio || 1,
+            logging: false,
+            onclone: (document) => {
+                document.documentElement.style.overflow = 'hidden';
+                document.body.style.overflow = 'hidden';
+            }
+        }).then(canvas => {
+            const image = canvas.toDataURL('image/png');
+            const downloadLink = document.createElement('a');
+            downloadLink.href = image;
+            downloadLink.download = `감정DMZ_결과_${getFormattedDate('file')}.png`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            showToast('결과 이미지가 성공적으로 저장되었습니다!');
+        }).catch(err => {
+            console.error('이미지 저장 중 오류 발생:', err);
+            showToast('이미지 저장에 실패했습니다. 다시 시도해주세요.', true);
+        }).finally(() => {
+            if (buttonGroup) buttonGroup.style.display = 'flex'; 
+            if (disclaimerText) disclaimerText.style.display = 'block'; 
+        });
+    }, 300);
+  }
+
+
+  function copyPageLink() {
+    const unsecuredCopyToClipboard = (text) => {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            showToast('링크가 클립보드에 복사되었습니다!');
+        } catch (err) {
+            showToast('링크 복사에 실패했습니다.', true);
+            console.error('Fallback: Oops, unable to copy', err);
+        }
+        document.body.removeChild(textArea);
+    };
+
+    const urlToCopy = window.location.href;
+    if (navigator.clipboard && window.isSecureContext) { 
+        navigator.clipboard.writeText(urlToCopy).then(() => {
+            showToast('링크가 클립보드에 복사되었습니다!');
+        }).catch(() => {
+            unsecuredCopyToClipboard(urlToCopy); 
+        });
+    } else {
+        unsecuredCopyToClipboard(urlToCopy); 
+    }
+  }
+
+  function showToast(message, isError = false) {
+    if(!toastMessageEl) return;
+    toastMessageEl.textContent = message;
+    toastMessageEl.className = 'toast-message';
+    if(isError) {
+        toastMessageEl.classList.add('error');
+    }
+    toastMessageEl.classList.add('show');
+    setTimeout(() => {
+      toastMessageEl.classList.remove('show');
+    }, 3000);
+  }
+
+  function getFormattedDate(format = 'display') {
+      const date = new Date();
+      if (format === 'file') {
+          return date.toISOString().slice(0, 10).replace(/-/g, '');
+      }
+      return date.toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric' });
+  }
+
+  function renderChart() {
+    const chartContainer = document.getElementById('chart-container');
+    if (!chartContainer) return;
+
+    if (typeof Recharts === 'undefined') {
+        chartContainer.innerHTML = `<p style='text-align:center;color:var(--color-text-light);'>차트 라이브러리를 불러올 수 없습니다.</p>`;
+        return;
+    }
+    if (!localStorageAvailable || !monthlyData.length) {
+      chartContainer.innerHTML = `<p style='text-align:center;color:var(--color-text-secondary);padding:1em;'>아직 측정 기록이 없어요. 다음 달부터 당신의 마음 여정을 그래프로 확인해보세요! <span class="emoji">📈</span></p>`;
+      return;
+    }
+
+    const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } = Recharts;
+    const chartData = monthlyData.map(item => ({ month: item.month, '위험도': item.score }));
+
+    const chartElement = React.createElement(ResponsiveContainer, { width: '100%', height: 300 },
+      React.createElement(LineChart, { data: chartData, margin: { top: 20, right: 30, left: -15, bottom: 5 } },
+        React.createElement(CartesianGrid, { strokeDasharray: '3 3', stroke: 'var(--color-border-light)', vertical: false }),
+        React.createElement(XAxis, { dataKey: 'month', stroke: 'var(--color-text-light)', tick: { fontSize: 'var(--font-size-sm)'} }),
+        React.createElement(YAxis, { domain: [0, 100], allowDataOverflow: true, tickFormatter: (value) => `${value}점`, stroke: 'var(--color-text-light)', tick: { fontSize: 'var(--font-size-sm)'} }),
+        React.createElement(Tooltip, {
+            contentStyle: {
+                backgroundColor: 'var(--color-surface)',
+                borderColor: 'var(--color-border)',
+                borderRadius: 'var(--border-radius-base)',
+                boxShadow: 'var(--shadow-medium)',
+                padding: 'var(--space-sm)'
+            },
+            labelStyle: { color: 'var(--color-primary-dark)', fontWeight: 'var(--font-weight-semibold)', marginBottom: 'var(--space-xs)' },
+            itemStyle: { color: 'var(--color-text-secondary)'},
+            formatter: (value, name) => [`${value}점`, name] }),
+        React.createElement(Legend, { 
+            verticalAlign: "top", 
+            align: "center",
+            height:40, 
+            wrapperStyle: { fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' },
+            formatter: () => "월별 위험도 변화"
+        }),
+        React.createElement(Line, { 
+            type: 'monotone', 
+            dataKey: '위험도', 
+            stroke: 'var(--color-primary)', 
+            strokeWidth: 2.5,
+            dot: { r: 5, fill: 'var(--color-primary)', stroke: 'var(--color-surface)', strokeWidth: 1.5 }, 
+            activeDot: { r: 7, stroke: 'var(--color-primary-lighter)', strokeWidth: 2, fill: 'var(--color-primary-dark)' } 
+        })
+      )
+    );
+    if (typeof ReactDOM !== 'undefined' && ReactDOM.render) {
+        ReactDOM.render(chartElement, chartContainer);
+    } else if (typeof ReactDOM !== 'undefined' && ReactDOM.createRoot) {
+        const root = ReactDOM.createRoot(chartContainer);
+        root.render(chartElement);
+    } else {
+        chartContainer.innerHTML = `<p style='text-align:center;color:var(--color-text-light);'>차트 렌더링에 실패했습니다. React DOM을 확인해주세요.</p>`;
+    }
+  }
+
+  initialize();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+name: Export Backmega YouTube video links
+
+on:
+  push:
+    branches:
+      - youtube-backmega-export-20260901
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Install yt-dlp
+        run: python -m pip install --disable-pip-version-check -q yt-dlp
+
+      - name: Collect channel tabs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p output/raw
+          CHANNEL='https://www.youtube.com/@%EB%B0%B1%EB%A9%94%EA%B0%80%EC%A3%BC%EC%8B%9D%ED%9A%8C%EC%82%AC'
+          yt-dlp --ignore-errors --flat-playlist --dump-single-json --no-warnings "$CHANNEL/videos" > output/raw/videos.json
+          yt-dlp --ignore-errors --flat-playlist --dump-single-json --no-warnings "$CHANNEL/shorts" > output/raw/shorts.json || echo '{"entries":[]}' > output/raw/shorts.json
+          yt-dlp --ignore-errors --flat-playlist --dump-single-json --no-warnings "$CHANNEL/streams" > output/raw/streams.json || echo '{"entries":[]}' > output/raw/streams.json
+
+      - name: Normalize CSV files
+        shell: bash
+        run: |
+          python - <<'PY'
+          from __future__ import annotations
+          import csv, json, re
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          out = Path('output')
+          channel_url = 'https://www.youtube.com/@%EB%B0%B1%EB%A9%94%EA%B0%80%EC%A3%BC%EC%8B%9D%ED%9A%8C%EC%82%AC'
+          tabs = [
+              ('일반영상', out/'raw/videos.json'),
+              ('쇼츠', out/'raw/shorts.json'),
+              ('라이브', out/'raw/streams.json'),
+          ]
+
+          fields = [
+              '콘텐츠유형','제목','영상URL','영상ID','게시일','길이초','길이표시',
+              '조회수','라이브상태','공개상태','썸네일URL','채널명','채널ID','채널URL','원본탭URL'
+          ]
+
+          def fmt_duration(v):
+              if v is None or v == '': return ''
+              try: sec = int(float(v))
+              except Exception: return ''
+              h, rem = divmod(sec, 3600); m, s = divmod(rem, 60)
+              return f'{h}:{m:02d}:{s:02d}' if h else f'{m}:{s:02d}'
+
+          def fmt_date(entry):
+              val = entry.get('upload_date')
+              if isinstance(val, str) and re.fullmatch(r'\d{8}', val):
+                  return f'{val[:4]}-{val[4:6]}-{val[6:]}'
+              ts = entry.get('timestamp') or entry.get('release_timestamp')
+              try:
+                  return datetime.fromtimestamp(float(ts), tz=timezone.utc).date().isoformat() if ts else ''
+              except Exception:
+                  return ''
+
+          def video_url(entry):
+              vid = str(entry.get('id') or '').strip()
+              raw = str(entry.get('webpage_url') or entry.get('url') or '').strip()
+              if raw.startswith('http'):
+                  return raw
+              return f'https://www.youtube.com/watch?v={vid}' if vid else ''
+
+          all_rows = []
+          counts = {}
+          for kind, path in tabs:
+              data = json.loads(path.read_text(encoding='utf-8'))
+              rows = []
+              for e in data.get('entries') or []:
+                  if not e: continue
+                  thumbs = e.get('thumbnails') or []
+                  thumb = e.get('thumbnail') or (thumbs[-1].get('url') if thumbs and isinstance(thumbs[-1], dict) else '')
+                  row = {
+                      '콘텐츠유형': kind,
+                      '제목': str(e.get('title') or '').strip(),
+                      '영상URL': video_url(e),
+                      '영상ID': str(e.get('id') or '').strip(),
+                      '게시일': fmt_date(e),
+                      '길이초': e.get('duration') if e.get('duration') is not None else '',
+                      '길이표시': fmt_duration(e.get('duration')),
+                      '조회수': e.get('view_count') if e.get('view_count') is not None else '',
+                      '라이브상태': str(e.get('live_status') or ''),
+                      '공개상태': str(e.get('availability') or ''),
+                      '썸네일URL': str(thumb or ''),
+                      '채널명': str(e.get('channel') or e.get('uploader') or data.get('channel') or data.get('uploader') or '백메가'),
+                      '채널ID': str(e.get('channel_id') or data.get('channel_id') or ''),
+                      '채널URL': str(e.get('channel_url') or e.get('uploader_url') or channel_url),
+                      '원본탭URL': f'{channel_url}/' + {'일반영상':'videos','쇼츠':'shorts','라이브':'streams'}[kind],
+                  }
+                  if row['영상ID'] and row['영상URL']:
+                      rows.append(row)
+                      all_rows.append(row)
+              counts[kind] = len(rows)
+              with (out/f'{kind}.csv').open('w', encoding='utf-8-sig', newline='') as f:
+                  w = csv.DictWriter(f, fieldnames=fields); w.writeheader(); w.writerows(rows)
+
+          priority = {'일반영상': 0, '쇼츠': 1, '라이브': 2}
+          unique = {}
+          for r in all_rows:
+              vid = r['영상ID']
+              if vid not in unique or priority[r['콘텐츠유형']] < priority[unique[vid]['콘텐츠유형']]:
+                  unique[vid] = r
+          merged = sorted(unique.values(), key=lambda r: (r['게시일'] or '', r['영상ID']), reverse=True)
+          with (out/'전체통합.csv').open('w', encoding='utf-8-sig', newline='') as f:
+              w = csv.DictWriter(f, fieldnames=fields); w.writeheader(); w.writerows(merged)
+          (out/'URL만.txt').write_text('\n'.join(r['영상URL'] for r in merged) + ('\n' if merged else ''), encoding='utf-8')
+
+          summary = {
+              '수집시각_UTC': datetime.now(timezone.utc).isoformat(),
+              '채널URL': channel_url,
+              '일반영상_탭건수': counts.get('일반영상', 0),
+              '쇼츠_탭건수': counts.get('쇼츠', 0),
+              '라이브_탭건수': counts.get('라이브', 0),
+              '탭합계_중복포함': len(all_rows),
+              '고유영상수': len(merged),
+              '중복제거수': len(all_rows) - len(merged),
+          }
+          (out/'summary.json').write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding='utf-8')
+          print(json.dumps(summary, ensure_ascii=False, indent=2))
+          if not merged:
+              raise SystemExit('No videos collected')
+          PY
+
+      - name: Upload export
+        uses: actions/upload-artifact@v4
+        with:
+          name: backmega-youtube-links
+          path: output/
+          if-no-files-found: error
+          retention-days: 3

@@ -1,0 +1,39 @@
+name: AJD temporary public-content crawl
+
+on:
+  push:
+    branches:
+      - tmp-ajd-crawl-20260901
+    paths:
+      - scripts/ajd_temp_crawl.py
+      - .github/workflows/ajd-temp-crawl.yml
+
+permissions:
+  contents: read
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out temporary branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Crawl AJD public sources
+        run: python scripts/ajd_temp_crawl.py
+
+      - name: Upload collected data
+        uses: actions/upload-artifact@v4
+        with:
+          name: ajd-honeytips-urls
+          path: |
+            output/ajd_honeytips_urls.csv
+            output/ajd_honeytips_full.json
+            output/ajd_honeytips_summary.json
+          retention-days: 1
+          if-no-files-found: error

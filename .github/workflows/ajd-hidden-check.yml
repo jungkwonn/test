@@ -1,0 +1,69 @@
+name: AJD hidden page crawlability check
+
+on:
+  push:
+    branches:
+      - ajd-url-crawl-20260901
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect page and discovery controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import gzip, json, re, urllib.request
+
+          page = 'https://www.ajd.co.kr/contents/basic-tip/detail/%EC%A7%80%EB%AC%B8%EC%9D%B8%EC%8B%9D_%EC%95%88%EB%90%A0%EB%95%8C_%EC%9D%B4%EA%B2%83%EC%9D%84_%EB%B0%94%EA%BE%B8%EB%A9%B4_%ED%95%B4%EA%B2%B0%EB%90%A9%EB%8B%88%EB%8B%A4-66279'
+          ua = {'User-Agent':'Mozilla/5.0 (compatible; public-page-audit/1.0)'}
+
+          def get(url):
+              req=urllib.request.Request(url,headers=ua)
+              with urllib.request.urlopen(req,timeout=45) as r:
+                  return r.status, dict(r.headers), r.read(), r.geturl()
+
+          status, headers, body, final_url = get(page)
+          html = body.decode('utf-8','replace')
+          robots_meta = re.findall(r'<meta[^>]+(?:name|property)=["\']robots["\'][^>]*>', html, re.I)
+          canonical = re.findall(r'<link[^>]+rel=["\'][^"\']*canonical[^"\']*["\'][^>]*>', html, re.I)
+          xrobots = headers.get('X-Robots-Tag') or headers.get('x-robots-tag')
+
+          _, _, rob_body, _ = get('https://www.ajd.co.kr/robots.txt')
+          robots = rob_body.decode('utf-8','replace')
+          id_in_robots = [line for line in robots.splitlines() if '66279' in line]
+          generic_basic_tip_disallow = [line for line in robots.splitlines() if line.lower().startswith('disallow:') and line.strip().rstrip('/') in ('Disallow:/contents/basic-tip','Disallow: /contents/basic-tip')]
+
+          _, _, sm_body, _ = get('https://www.ajd.co.kr/sitemap-honeytips.xml.gz')
+          if sm_body[:2] == b'\x1f\x8b':
+              sm_body = gzip.decompress(sm_body)
+          sm_text = sm_body.decode('utf-8','replace')
+          in_sitemap = '66279' in sm_text
+          sitemap_url_match = re.findall(r'<loc>([^<]*66279[^<]*)</loc>', sm_text, re.I)
+
+          result = {
+              'http_status': status,
+              'final_url': final_url,
+              'content_type': headers.get('Content-Type'),
+              'x_robots_tag': xrobots,
+              'robots_meta_tags': robots_meta,
+              'canonical_tags': canonical,
+              'specific_66279_rule_in_robots_txt': id_in_robots,
+              'generic_basic_tip_disallow': generic_basic_tip_disallow,
+              'present_in_sitemap_honeytips': in_sitemap,
+              'sitemap_url_match': sitemap_url_match[:3],
+              'title_present_in_html': '지문인식 안될때 이것을 바꾸면 해결됩니다' in html,
+          }
+          print(json.dumps(result, ensure_ascii=False, indent=2))
+          open('ajd-hidden-check.json','w',encoding='utf-8').write(json.dumps(result,ensure_ascii=False,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ajd-hidden-check
+          path: ajd-hidden-check.json
+          retention-days: 1

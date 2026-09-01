@@ -1,0 +1,177 @@
+name: Export enriched Backmega YouTube metadata
+
+on:
+  push:
+    branches:
+      - youtube-backmega-export-20260901
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export-rich:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Install yt-dlp
+        run: python -m pip install --disable-pip-version-check -q yt-dlp
+
+      - name: Collect flat lists in Korean locale
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p output/raw
+          CHANNEL='https://www.youtube.com/@%EB%B0%B1%EB%A9%94%EA%B0%80%EC%A3%BC%EC%8B%9D%ED%9A%8C%EC%82%AC'
+          OPTS=(--ignore-errors --flat-playlist --dump-single-json --no-warnings --extractor-args 'youtube:lang=ko')
+          yt-dlp "${OPTS[@]}" "$CHANNEL/videos" > output/raw/videos.json
+          yt-dlp "${OPTS[@]}" "$CHANNEL/shorts" > output/raw/shorts.json || echo '{"entries":[]}' > output/raw/shorts.json
+          yt-dlp "${OPTS[@]}" "$CHANNEL/streams" > output/raw/streams.json || echo '{"entries":[]}' > output/raw/streams.json
+
+      - name: Build URL target list
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          out=Path('output')
+          tabs=[('일반영상',out/'raw/videos.json'),('쇼츠',out/'raw/shorts.json'),('라이브',out/'raw/streams.json')]
+          mapping={}
+          for kind,path in tabs:
+              data=json.loads(path.read_text(encoding='utf-8'))
+              for e in data.get('entries') or []:
+                  if not e or not e.get('id'): continue
+                  vid=str(e['id'])
+                  url=e.get('webpage_url') or e.get('url') or ''
+                  if not str(url).startswith('http'):
+                      url=('https://www.youtube.com/shorts/' if kind=='쇼츠' else 'https://www.youtube.com/watch?v=')+vid
+                  mapping.setdefault(vid, {'kind':kind,'url':url,'flat':e})
+          (out/'targets.txt').write_text('\n'.join(v['url'] for v in mapping.values())+'\n',encoding='utf-8')
+          (out/'mapping.json').write_text(json.dumps(mapping,ensure_ascii=False),encoding='utf-8')
+          print('targets',len(mapping))
+          PY
+
+      - name: Fetch full public metadata
+        shell: bash
+        run: |
+          set -o pipefail
+          yt-dlp \
+            --ignore-errors \
+            --skip-download \
+            --dump-json \
+            --no-warnings \
+            --no-playlist \
+            --extractor-args 'youtube:lang=ko' \
+            --socket-timeout 20 \
+            --retries 3 \
+            --fragment-retries 1 \
+            --batch-file output/targets.txt \
+            > output/full.ndjson || true
+
+      - name: Normalize enriched files
+        shell: bash
+        run: |
+          python - <<'PY'
+          from __future__ import annotations
+          import csv, json, re
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          out=Path('output')
+          channel_url='https://www.youtube.com/@%EB%B0%B1%EB%A9%94%EA%B0%80%EC%A3%BC%EC%8B%9D%ED%9A%8C%EC%82%AC'
+          mapping=json.loads((out/'mapping.json').read_text(encoding='utf-8'))
+          full={}
+          for line in (out/'full.ndjson').read_text(encoding='utf-8',errors='replace').splitlines():
+              line=line.strip()
+              if not line: continue
+              try:
+                  d=json.loads(line)
+                  if d.get('id'): full[str(d['id'])]=d
+              except Exception:
+                  pass
+
+          def fmt_date(d):
+              x=d.get('upload_date') or d.get('release_date')
+              if isinstance(x,str) and re.fullmatch(r'\d{8}',x): return f'{x[:4]}-{x[4:6]}-{x[6:]}'
+              ts=d.get('timestamp') or d.get('release_timestamp')
+              try: return datetime.fromtimestamp(float(ts),tz=timezone.utc).date().isoformat() if ts else ''
+              except Exception: return ''
+          def fmt_duration(v):
+              try: sec=int(float(v))
+              except Exception: return ''
+              h,rem=divmod(sec,3600);m,s=divmod(rem,60)
+              return f'{h}:{m:02d}:{s:02d}' if h else f'{m}:{s:02d}'
+          def best_thumb(d,flat):
+              for obj in (d,flat):
+                  if obj.get('thumbnail'): return obj['thumbnail']
+                  th=obj.get('thumbnails') or []
+                  if th and isinstance(th[-1],dict) and th[-1].get('url'): return th[-1]['url']
+              return ''
+
+          fields=['콘텐츠유형','제목','영상URL','영상ID','게시일','길이초','길이표시','조회수','좋아요수','댓글수','설명','설명요약','태그','카테고리','라이브상태','공개상태','썸네일URL','채널명','채널ID','채널URL','원본탭URL','메타데이터수집상태']
+          rows=[]
+          tab_map={'일반영상':'videos','쇼츠':'shorts','라이브':'streams'}
+          for vid,item in mapping.items():
+              kind=item['kind']; flat=item.get('flat') or {}; d=full.get(vid) or {}
+              desc=str(d.get('description') or '')
+              tags=d.get('tags') or []
+              cats=d.get('categories') or []
+              url=d.get('webpage_url') or item['url']
+              row={
+                  '콘텐츠유형':kind,
+                  '제목':str(d.get('title') or flat.get('title') or '').strip(),
+                  '영상URL':url,
+                  '영상ID':vid,
+                  '게시일':fmt_date(d),
+                  '길이초':d.get('duration') if d.get('duration') is not None else flat.get('duration',''),
+                  '길이표시':fmt_duration(d.get('duration') if d.get('duration') is not None else flat.get('duration')),
+                  '조회수':d.get('view_count') if d.get('view_count') is not None else flat.get('view_count',''),
+                  '좋아요수':d.get('like_count',''),
+                  '댓글수':d.get('comment_count',''),
+                  '설명':desc,
+                  '설명요약':re.sub(r'\s+',' ',desc).strip()[:500],
+                  '태그':' | '.join(map(str,tags)),
+                  '카테고리':' | '.join(map(str,cats)),
+                  '라이브상태':str(d.get('live_status') or flat.get('live_status') or ''),
+                  '공개상태':str(d.get('availability') or flat.get('availability') or ''),
+                  '썸네일URL':best_thumb(d,flat),
+                  '채널명':str(d.get('channel') or d.get('uploader') or flat.get('channel') or flat.get('uploader') or '백메가'),
+                  '채널ID':str(d.get('channel_id') or flat.get('channel_id') or 'UCd8mxBCxreaUN32HvkEwP3A'),
+                  '채널URL':str(d.get('channel_url') or d.get('uploader_url') or channel_url),
+                  '원본탭URL':f'{channel_url}/{tab_map[kind]}',
+                  '메타데이터수집상태':'완료' if d else '목록정보만',
+              }
+              rows.append(row)
+          rows.sort(key=lambda r:(r['게시일'] or '',r['영상ID']),reverse=True)
+
+          with (out/'전체통합_상세.csv').open('w',encoding='utf-8-sig',newline='') as f:
+              w=csv.DictWriter(f,fieldnames=fields);w.writeheader();w.writerows(rows)
+          for kind in ('일반영상','쇼츠','라이브'):
+              sub=[r for r in rows if r['콘텐츠유형']==kind]
+              with (out/f'{kind}_상세.csv').open('w',encoding='utf-8-sig',newline='') as f:
+                  w=csv.DictWriter(f,fieldnames=fields);w.writeheader();w.writerows(sub)
+          (out/'URL만.txt').write_text('\n'.join(r['영상URL'] for r in rows)+'\n',encoding='utf-8')
+          summary={
+              '수집시각_UTC':datetime.now(timezone.utc).isoformat(),
+              '채널URL':channel_url,
+              '전체고유영상':len(rows),
+              '일반영상':sum(r['콘텐츠유형']=='일반영상' for r in rows),
+              '쇼츠':sum(r['콘텐츠유형']=='쇼츠' for r in rows),
+              '라이브':sum(r['콘텐츠유형']=='라이브' for r in rows),
+              '상세메타데이터완료':sum(r['메타데이터수집상태']=='완료' for r in rows),
+              '목록정보만':sum(r['메타데이터수집상태']=='목록정보만' for r in rows),
+              '게시일확인':sum(bool(r['게시일']) for r in rows),
+              '설명확인':sum(bool(r['설명']) for r in rows),
+          }
+          (out/'summary_rich.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8')
+          print(json.dumps(summary,ensure_ascii=False,indent=2))
+          if not rows: raise SystemExit('no rows')
+          PY
+
+      - name: Upload enriched export
+        uses: actions/upload-artifact@v4
+        with:
+          name: backmega-youtube-rich-links
+          path: output/
+          if-no-files-found: error
+          retention-days: 3

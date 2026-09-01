@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import gzip
 import json
 import re
 import time
@@ -21,6 +22,17 @@ OUTPUT_DIR = Path("output")
 USER_AGENT = "Mozilla/5.0 (compatible; AJD-public-content-audit/1.0; +https://github.com/jungkwonn/test)"
 
 
+def maybe_decompress(data: bytes) -> bytes:
+    """Decode a raw gzip payload even when the origin omits Content-Encoding."""
+    result = data
+    for _ in range(3):
+        if result.startswith(b"\x1f\x8b"):
+            result = gzip.decompress(result)
+            continue
+        break
+    return result
+
+
 def fetch_bytes(url: str, attempts: int = 7) -> bytes:
     last_error: Exception | None = None
     for attempt in range(attempts):
@@ -29,23 +41,30 @@ def fetch_bytes(url: str, attempts: int = 7) -> bytes:
             headers={
                 "User-Agent": USER_AGENT,
                 "Accept": "application/json, application/xml, text/plain, */*",
+                "Accept-Encoding": "identity",
+                "Cache-Control": "no-cache",
             },
         )
         try:
-            with urllib.request.urlopen(request, timeout=45) as response:
-                return response.read()
+            with urllib.request.urlopen(request, timeout=60) as response:
+                data = response.read()
+                content_encoding = (response.headers.get("Content-Encoding") or "").lower()
+                if "gzip" in content_encoding or data.startswith(b"\x1f\x8b"):
+                    data = maybe_decompress(data)
+                return data
         except urllib.error.HTTPError as exc:
             last_error = exc
             if exc.code not in {408, 425, 429, 500, 502, 503, 504}:
                 raise
-        except (urllib.error.URLError, TimeoutError, ConnectionError) as exc:
+        except (urllib.error.URLError, TimeoutError, ConnectionError, OSError) as exc:
             last_error = exc
-        time.sleep(min(0.6 * (2**attempt), 10.0))
+        time.sleep(min(0.7 * (2**attempt), 12.0))
     raise RuntimeError(f"Failed to fetch {url}: {last_error}")
 
 
 def fetch_json(url: str) -> dict[str, Any]:
-    return json.loads(fetch_bytes(url).decode("utf-8"))
+    raw = fetch_bytes(url)
+    return json.loads(raw.decode("utf-8-sig"))
 
 
 def api_page_url(page: int, include_hidden: bool) -> str:
@@ -68,40 +87,87 @@ def fetch_page(page: int, include_hidden: bool = True) -> tuple[int, dict[str, A
     return page, payload
 
 
-def fetch_all_api_records() -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    _, first = fetch_page(0, True)
-    total_pages = int(first["totalPages"])
-    total_elements = int(first["totalElements"])
-    pages: dict[int, dict[str, Any]] = {0: first}
+def collect_api_snapshot(max_snapshot_attempts: int = 3) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Collect a stable paginated snapshot and retry if records change mid-crawl."""
+    last_problem = "unknown"
+    for snapshot_attempt in range(1, max_snapshot_attempts + 1):
+        _, first = fetch_page(0, True)
+        total_pages = int(first["totalPages"])
+        total_elements = int(first["totalElements"])
+        pages: dict[int, dict[str, Any]] = {0: first}
+        print(
+            f"API snapshot attempt {snapshot_attempt}: "
+            f"totalElements={total_elements}, totalPages={total_pages}",
+            flush=True,
+        )
 
-    with ThreadPoolExecutor(max_workers=6) as pool:
-        futures = {pool.submit(fetch_page, page, True): page for page in range(1, total_pages)}
-        completed = 1
-        for future in as_completed(futures):
-            page, payload = future.result()
-            pages[page] = payload
-            completed += 1
-            if completed % 100 == 0 or completed == total_pages:
-                print(f"API pages collected: {completed}/{total_pages}", flush=True)
+        with ThreadPoolExecutor(max_workers=6) as pool:
+            futures = {
+                pool.submit(fetch_page, page, True): page
+                for page in range(1, total_pages)
+            }
+            completed = 1
+            for future in as_completed(futures):
+                page, payload = future.result()
+                pages[page] = payload
+                completed += 1
+                if completed % 100 == 0 or completed == total_pages:
+                    print(
+                        f"API pages collected: {completed}/{total_pages}",
+                        flush=True,
+                    )
 
-    records: list[dict[str, Any]] = []
-    for page_number in range(total_pages):
-        payload = pages[page_number]
-        for position, item in enumerate(payload.get("content", []), start=1):
-            item = dict(item)
-            item["_apiPage"] = page_number
-            item["_positionInPage"] = position
-            records.append(item)
+        records: list[dict[str, Any]] = []
+        for page_number in range(total_pages):
+            payload = pages[page_number]
+            for position, source_item in enumerate(
+                payload.get("content", []), start=1
+            ):
+                item = dict(source_item)
+                item["_apiPage"] = page_number
+                item["_positionInPage"] = position
+                records.append(item)
 
-    if len(records) != total_elements:
-        raise RuntimeError(f"API count mismatch: received={len(records)}, declared={total_elements}")
+        ids = [int(item["sn"]) for item in records]
+        unique_ids = set(ids)
+        _, final_first = fetch_page(0, True)
+        final_total_elements = int(final_first["totalElements"])
+        final_total_pages = int(final_first["totalPages"])
 
-    summary = {
-        "totalPages": total_pages,
-        "totalElements": total_elements,
-        "pageSize": int(first.get("size", 8)),
-    }
-    return records, summary
+        problems: list[str] = []
+        if len(records) != total_elements:
+            problems.append(
+                f"record count {len(records)} != declared {total_elements}"
+            )
+        if len(unique_ids) != len(records):
+            problems.append(
+                f"unique IDs {len(unique_ids)} != records {len(records)}"
+            )
+        if final_total_elements != total_elements:
+            problems.append(
+                f"totalElements changed {total_elements}->{final_total_elements}"
+            )
+        if final_total_pages != total_pages:
+            problems.append(
+                f"totalPages changed {total_pages}->{final_total_pages}"
+            )
+
+        if not problems:
+            return records, {
+                "totalPages": total_pages,
+                "totalElements": total_elements,
+                "pageSize": int(first.get("size", 8)),
+                "snapshotAttempt": snapshot_attempt,
+            }
+
+        last_problem = "; ".join(problems)
+        print(f"Snapshot unstable: {last_problem}. Retrying.", flush=True)
+        time.sleep(3)
+
+    raise RuntimeError(
+        f"Could not obtain a stable API snapshot after "
+        f"{max_snapshot_attempts} attempts: {last_problem}"
+    )
 
 
 def fetch_visible_ids() -> tuple[set[int], int]:
@@ -113,45 +179,67 @@ def fetch_visible_ids() -> tuple[set[int], int]:
         _, payload = fetch_page(page, False)
         ids.update(int(item["sn"]) for item in payload.get("content", []))
     if len(ids) != total_elements:
-        raise RuntimeError(f"Visible-list count mismatch: ids={len(ids)}, declared={total_elements}")
+        raise RuntimeError(
+            f"Visible-list count mismatch: IDs={len(ids)}, declared={total_elements}"
+        )
     return ids, total_elements
 
 
-def parse_sitemap() -> tuple[list[str], dict[int, str]]:
-    raw = fetch_bytes(SITEMAP_URL)
-    root = ET.fromstring(raw)
-    urls: list[str] = []
-    by_id: dict[int, str] = {}
-    for node in root.iter():
-        if node.tag.rsplit("}", 1)[-1] != "loc" or not node.text:
-            continue
-        url = node.text.strip()
-        urls.append(url)
-        match = re.search(r"-(\d+)(?:[/?#].*)?$", url)
-        if match and "/contents/basic-tip/detail/" in url:
-            by_id[int(match.group(1))] = url
-    return urls, by_id
+def parse_sitemap() -> tuple[list[str], dict[int, str], str, list[str]]:
+    encoded = urllib.parse.quote(SITEMAP_URL, safe="")
+    candidates = [
+        ("direct", SITEMAP_URL),
+        ("corsmirror", f"https://corsmirror.com/v1?url={encoded}"),
+    ]
+    errors: list[str] = []
+
+    for mode, url in candidates:
+        try:
+            raw = maybe_decompress(fetch_bytes(url)).lstrip(b"\xef\xbb\xbf\x00\t\r\n ")
+            if not raw.startswith(b"<"):
+                raise ValueError(f"Unexpected first bytes: {raw[:24]!r}")
+            root = ET.fromstring(raw)
+            urls: list[str] = []
+            by_id: dict[int, str] = {}
+            for node in root.iter():
+                if node.tag.rsplit("}", 1)[-1] != "loc" or not node.text:
+                    continue
+                sitemap_url = node.text.strip()
+                urls.append(sitemap_url)
+                match = re.search(r"-(\d+)(?:[/?#].*)?$", sitemap_url)
+                if match and "/contents/basic-tip/detail/" in sitemap_url:
+                    by_id[int(match.group(1))] = sitemap_url
+            if not urls:
+                raise ValueError("Parsed sitemap contains no <loc> elements")
+            return urls, by_id, mode, errors
+        except Exception as exc:  # continue with the verified fallback source
+            message = f"{mode}: {type(exc).__name__}: {exc}"
+            errors.append(message)
+            print(f"Sitemap source failed: {message}", flush=True)
+
+    return [], {}, "unavailable", errors
 
 
-def parse_robots() -> tuple[list[str], set[int], set[str]]:
-    text = fetch_bytes(ROBOTS_URL).decode("utf-8", errors="replace")
+def parse_robots() -> tuple[list[str], set[int], str | None]:
+    try:
+        text = fetch_bytes(ROBOTS_URL).decode("utf-8-sig", errors="replace")
+    except Exception as exc:
+        return [], set(), f"{type(exc).__name__}: {exc}"
+
     paths: list[str] = []
     ids: set[int] = set()
-    normalized_paths: set[str] = set()
     for raw_line in text.splitlines():
         line = raw_line.strip()
         if not line.startswith("Disallow:"):
             continue
-        path = line.split(":", 1)[1].strip()
+        path = line.split(":", 1)[1].strip().removesuffix("$")
         if not path.startswith("/contents/basic-tip/detail/"):
             continue
-        path = path.removesuffix("$")
         paths.append(path)
-        normalized_paths.add(path)
         match = re.search(r"-(\d+)$", path)
         if match:
             ids.add(int(match.group(1)))
-    return paths, ids, normalized_paths
+    return paths, ids, None
 
 
 def fallback_url(title: str, sn: int) -> str:
@@ -167,15 +255,19 @@ def main() -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     print("Fetching sitemap...", flush=True)
-    sitemap_urls, sitemap_by_id = parse_sitemap()
-    print(f"Sitemap URLs: {len(sitemap_urls)}", flush=True)
+    sitemap_urls, sitemap_by_id, sitemap_mode, sitemap_errors = parse_sitemap()
+    print(
+        f"Sitemap URLs: {len(sitemap_urls)} "
+        f"(detail IDs={len(sitemap_by_id)}, mode={sitemap_mode})",
+        flush=True,
+    )
 
     print("Fetching robots.txt...", flush=True)
-    robots_paths, robots_ids, _ = parse_robots()
+    robots_paths, robots_ids, robots_error = parse_robots()
     print(f"Robots basic-tip disallows: {len(robots_paths)}", flush=True)
 
     print("Fetching all API records...", flush=True)
-    records, api_summary = fetch_all_api_records()
+    records, api_summary = collect_api_snapshot()
     visible_ids, visible_total = fetch_visible_ids()
 
     seen: set[int] = set()
@@ -189,11 +281,24 @@ def main() -> None:
         seen.add(sn)
 
         title = str(item.get("title") or "")
-        url = sitemap_by_id.get(sn) or fallback_url(title, sn)
+        exact_url = sitemap_by_id.get(sn)
+        url = exact_url or fallback_url(title, sn)
         categories = item.get("categories") or []
-        top_categories = [c for c in categories if c.get("parentCategorySn") is None]
-        top_category = (top_categories[0] if top_categories else (categories[0] if categories else {})).get("categoryName", "")
-        category_path = " > ".join(str(c.get("categoryName") or "") for c in categories if c.get("categoryName"))
+        top_categories = [
+            category
+            for category in categories
+            if category.get("parentCategorySn") is None
+        ]
+        top_category = (
+            top_categories[0]
+            if top_categories
+            else (categories[0] if categories else {})
+        ).get("categoryName", "")
+        category_path = " > ".join(
+            str(category.get("categoryName") or "")
+            for category in categories
+            if category.get("categoryName")
+        )
         creator = item.get("creator") or {}
 
         rows.append(
@@ -202,6 +307,7 @@ def main() -> None:
                 "sn": sn,
                 "title": title,
                 "url": url,
+                "urlSource": "sitemap" if exact_url else "API title+sn",
                 "inSitemap": sn in sitemap_by_id,
                 "listedInOrdinaryAPI": sn in visible_ids,
                 "robotsDisallow": sn in robots_ids,
@@ -238,6 +344,7 @@ def main() -> None:
         "apiTotalElements": api_summary["totalElements"],
         "apiTotalPages": api_summary["totalPages"],
         "apiPageSize": api_summary["pageSize"],
+        "apiSnapshotAttempt": api_summary["snapshotAttempt"],
         "apiRecordsReceived": len(records),
         "uniqueSnCount": len(api_ids),
         "duplicateSnCount": len(duplicates),
@@ -248,6 +355,8 @@ def main() -> None:
         "hiddenFlagCount": hidden_count,
         "deletedFlagCount": deleted_count,
         "blockedFlagCount": blocked_count,
+        "sitemapFetchMode": sitemap_mode,
+        "sitemapFetchErrors": sitemap_errors,
         "sitemapUrlCount": len(sitemap_urls),
         "sitemapDetailUniqueSnCount": len(sitemap_ids),
         "apiIdsInSitemapCount": in_sitemap_count,
@@ -255,6 +364,7 @@ def main() -> None:
         "apiIdsMissingFromSitemap": sorted(api_ids - sitemap_ids),
         "sitemapIdsMissingFromApiCount": len(sitemap_ids - api_ids),
         "sitemapIdsMissingFromApi": sorted(sitemap_ids - api_ids),
+        "robotsFetchError": robots_error,
         "robotsBasicTipDisallowCount": len(robots_paths),
         "robotsUniqueSnCount": len(robots_ids),
         "apiIdsAlsoRobotsDisallowedCount": robots_api_overlap,
@@ -268,6 +378,7 @@ def main() -> None:
         "sn",
         "title",
         "url",
+        "urlSource",
         "inSitemap",
         "listedInOrdinaryAPI",
         "robotsDisallow",
@@ -295,16 +406,28 @@ def main() -> None:
         writer = csv.DictWriter(handle, fieldnames=csv_fields)
         writer.writeheader()
         for row in rows:
-            out = dict(row)
-            for key in ["inSitemap", "listedInOrdinaryAPI", "robotsDisallow", "isHidden", "isDeleted", "isBlocked", "isPinned"]:
-                out[key] = bool_text(out[key])
-            writer.writerow(out)
+            output_row = dict(row)
+            for key in [
+                "inSitemap",
+                "listedInOrdinaryAPI",
+                "robotsDisallow",
+                "isHidden",
+                "isDeleted",
+                "isBlocked",
+                "isPinned",
+            ]:
+                output_row[key] = bool_text(output_row[key])
+            writer.writerow(output_row)
 
     json_path = OUTPUT_DIR / "ajd_honeytips_full.json"
-    json_path.write_text(json.dumps(rows, ensure_ascii=False, indent=2), encoding="utf-8")
+    json_path.write_text(
+        json.dumps(rows, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
 
     summary_path = OUTPUT_DIR / "ajd_honeytips_summary.json"
-    summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+    summary_path.write_text(
+        json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
 
     print(json.dumps(summary, ensure_ascii=False, indent=2), flush=True)
 

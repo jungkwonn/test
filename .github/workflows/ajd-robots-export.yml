@@ -1,0 +1,31 @@
+name: AJD temporary robots URL export
+
+on:
+  push:
+    branches:
+      - tmp-ajd-crawl-20260901
+    paths:
+      - scripts/ajd_robots_export.py
+      - .github/workflows/ajd-robots-export.yml
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Export robots-blocked AJD basic-tip URLs
+        run: python scripts/ajd_robots_export.py
+      - name: Upload robots URL list
+        uses: actions/upload-artifact@v4
+        with:
+          name: ajd-robots-blocked-basic-tip-urls
+          path: output/ajd_robots_blocked_basic_tip_urls.csv
+          retention-days: 1
+          if-no-files-found: error

@@ -1,0 +1,165 @@
+name: Analyze AJD top-decile page structure
+
+on:
+  push:
+    branches:
+      - ajd-top10-body-analysis-20260902
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Install parser
+        run: pip install --quiet requests beautifulsoup4 lxml
+      - name: Analyze top-decile and matched control pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          python3 - <<'PY'
+          from __future__ import annotations
+          import csv, json, math, random, re, time, urllib.parse
+          from collections import Counter, defaultdict
+          from concurrent.futures import ThreadPoolExecutor, as_completed
+          from pathlib import Path
+          import requests
+          from bs4 import BeautifulSoup
+
+          API='https://api-platform.ajd.co.kr/boards/honey-tips/contents'
+          UA='Mozilla/5.0 (compatible; AJD-public-content-audit/1.0)'
+          OUT=Path('out')
+          S=requests.Session(); S.headers.update({'User-Agent':UA,'Accept':'application/json,text/html,*/*'})
+
+          def get_json(page, attempts=7):
+              last=None
+              for i in range(attempts):
+                  try:
+                      r=S.get(API, params={'page':page,'size':8,'sort':'createdDateTime','includeHidden':'true'}, timeout=35)
+                      r.raise_for_status(); return r.json()
+                  except Exception as e:
+                      last=e; time.sleep(min(8,.6*(2**i)))
+              raise RuntimeError(f'api page {page}: {last!r}')
+
+          first=get_json(0); total_pages=int(first['totalPages']); total=int(first['totalElements'])
+          payloads={0:first}; failures=[]
+          with ThreadPoolExecutor(max_workers=10) as ex:
+              futs={ex.submit(get_json,p):p for p in range(1,total_pages)}
+              for fut in as_completed(futs):
+                  p=futs[fut]
+                  try: payloads[p]=fut.result()
+                  except Exception as e: failures.append((p,repr(e)))
+          for p,_ in list(failures):
+              try: payloads[p]=get_json(p,10); failures=[x for x in failures if x[0]!=p]
+              except Exception: pass
+          if failures: raise SystemExit(f'API failures {failures[:10]}')
+
+          rows=[]
+          for p in range(total_pages):
+              for x in payloads[p].get('content') or []:
+                  cats=[c.get('categoryName','') for c in (x.get('categories') or []) if c.get('categoryName')]
+                  rows.append({'id':int(x['sn']),'title':str(x.get('title') or '').strip(),'views':int(x.get('readCount') or 0),'category':cats[0] if cats else '기타','created':x.get('createdDateTime',''),'modified':x.get('lastModifiedDateTime','')})
+          byid={r['id']:r for r in rows}; rows=list(byid.values())
+          if len(rows)!=total: raise SystemExit(f'Count mismatch {len(rows)} != {total}')
+          rows.sort(key=lambda x:x['views'], reverse=True)
+          top_n=math.ceil(len(rows)*.10); top=rows[:top_n]; rest=rows[top_n:]
+
+          # Sample 400 of the top decile: top 150 plus a deterministic spread across the remainder.
+          rng=random.Random(20260902)
+          top_sample=top[:150] + rng.sample(top[150:], min(250,len(top)-150))
+          # Matched control sample by category distribution.
+          pools=defaultdict(list)
+          for r in rest: pools[r['category']].append(r)
+          wanted=Counter(r['category'] for r in top_sample)
+          control=[]
+          for cat,n in wanted.items():
+              pool=pools.get(cat,[])
+              control.extend(rng.sample(pool,min(n,len(pool))))
+          if len(control)<len(top_sample):
+              remaining=[r for r in rest if r not in control]
+              control.extend(rng.sample(remaining,min(len(top_sample)-len(control),len(remaining))))
+          control=control[:len(top_sample)]
+
+          def page_url(r):
+              slug=re.sub(r'\s+','_',r['title'].strip())
+              return 'https://www.ajd.co.kr/contents/basic-tip/detail/'+urllib.parse.quote(slug,safe='-_.~')+'-'+str(r['id'])
+
+          def inspect(group,r):
+              url=page_url(r); last=None
+              for i in range(5):
+                  try:
+                      resp=requests.get(url,headers={'User-Agent':UA,'Accept':'text/html,*/*'},timeout=35,allow_redirects=True)
+                      if resp.status_code>=500: raise RuntimeError(resp.status_code)
+                      break
+                  except Exception as e:
+                      last=e; time.sleep(min(6,.5*(2**i)))
+              else:
+                  return {**r,'group':group,'url':url,'http_status':'','error':repr(last)}
+              html=resp.text; soup=BeautifulSoup(html,'lxml')
+              for tag in soup(['script','style','noscript','svg']): tag.decompose()
+              text=' '.join(soup.get_text(' ',strip=True).split())
+              lower=text.lower()
+              canonical=''
+              c=soup.find('link',rel=lambda v:v and 'canonical' in v)
+              if c: canonical=c.get('href','')
+              desc=''
+              m=soup.find('meta',attrs={'name':'description'})
+              if m: desc=m.get('content','') or ''
+              imgs=soup.find_all('img'); iframes=soup.find_all('iframe'); tables=soup.find_all('table')
+              links=soup.find_all('a',href=True)
+              internal=sum(1 for a in links if a.get('href','').startswith('/') or 'ajd.co.kr' in a.get('href',''))
+              detail_internal=sum(1 for a in links if '/contents/basic-tip/detail/' in a.get('href',''))
+              # Visible date and JSON-LD dates
+              vis_dates=re.findall(r'20\d{2}[.\-/]\s*\d{1,2}[.\-/]\s*\d{1,2}',text[:5000])
+              ld_dates=[]
+              raw_soup=BeautifulSoup(html,'lxml')
+              for s in raw_soup.find_all('script',type='application/ld+json'):
+                  raw=s.string or s.get_text() or ''
+                  ld_dates += re.findall(r'"(?:datePublished|dateModified)"\s*:\s*"([^"]+)"',raw)
+              first_1200=text[:1200]
+              return {**r,'group':group,'url':url,'http_status':resp.status_code,'final_url':resp.url,'canonical':canonical,
+                  'title_chars':len(r['title']),'meta_description_chars':len(desc),'text_chars':len(text),
+                  'h1':len(soup.find_all('h1')),'h2':len(soup.find_all('h2')),'h3':len(soup.find_all('h3')),
+                  'tables':len(tables),'images':len(imgs),'iframes':len(iframes),'list_items':len(soup.find_all('li')),
+                  'internal_links':internal,'detail_internal_links':detail_internal,
+                  'has_toc':int('목차' in text),'has_source':int('출처' in text),'has_faq':int(bool(re.search(r'\bQ\.|\bA\.|FAQ|자주 묻',text,re.I))),
+                  'has_summary':int(bool(re.search(r'최종\s*정리|핵심\s*요약|요약',text))),
+                  'has_cta':int(bool(re.search(r'문의|상담|신청|가입하기|견적',text))),
+                  'has_video':int(any('youtube' in (f.get('src','') or '').lower() or 'youtu.be' in (f.get('src','') or '').lower() for f in iframes) or 'iframe' in html.lower()),
+                  'frontloaded_steps':int(bool(re.search(r'[①②③]|\b1[.)]\s|\b2[.)]\s|\d+\s*단계',first_1200))),
+                  'frontloaded_answer':int(bool(re.search(r'결론|정답|핵심|가장|방법|=|①|②|③',first_1200))),
+                  'visible_dates':' | '.join(vis_dates[:5]),'jsonld_dates':' | '.join(ld_dates[:8]),'error':''}
+
+          jobs=[('top',r) for r in top_sample]+[('control',r) for r in control]
+          results=[]
+          with ThreadPoolExecutor(max_workers=8) as ex:
+              futs={ex.submit(inspect,g,r):(g,r['id']) for g,r in jobs}
+              for fut in as_completed(futs):
+                  try: results.append(fut.result())
+                  except Exception as e:
+                      g,i=futs[fut]; results.append({'group':g,'id':i,'error':repr(e)})
+
+          fields=sorted({k for r in results for k in r})
+          with (OUT/'ajd_body_sample.csv').open('w',encoding='utf-8-sig',newline='') as f:
+              w=csv.DictWriter(f,fieldnames=fields); w.writeheader(); w.writerows(results)
+
+          numeric=['title_chars','meta_description_chars','text_chars','h1','h2','h3','tables','images','iframes','list_items','internal_links','detail_internal_links','has_toc','has_source','has_faq','has_summary','has_cta','has_video','frontloaded_steps','frontloaded_answer']
+          summary={'population':len(rows),'top_decile_n':top_n,'top_decile_cutoff_views':top[-1]['views'],'sample_top_n':len(top_sample),'sample_control_n':len(control),'failed_pages':sum(1 for r in results if r.get('error')),'metrics':{}}
+          for field in numeric:
+              summary['metrics'][field]={}
+              for g in ['top','control']:
+                  vals=[float(r.get(field,0) or 0) for r in results if r.get('group')==g and not r.get('error')]
+                  vals_sorted=sorted(vals)
+                  summary['metrics'][field][g]={'mean':sum(vals)/len(vals) if vals else None,'median':vals_sorted[len(vals_sorted)//2] if vals else None,'n':len(vals)}
+          (OUT/'ajd_body_summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8')
+          print(json.dumps(summary,ensure_ascii=False,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ajd-top10-body-analysis
+          path: out/
+          retention-days: 3

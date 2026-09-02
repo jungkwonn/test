@@ -1,0 +1,140 @@
+name: AJD created and modified timestamp analysis
+
+on:
+  push:
+    branches:
+      - ajd-lastmodified-analysis-20260902
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Fetch all public API records and analyze dates
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          python3 - <<'PY'
+          from __future__ import annotations
+          import csv, json, time, urllib.parse, urllib.request
+          from collections import Counter, defaultdict
+          from concurrent.futures import ThreadPoolExecutor, as_completed
+          from datetime import datetime
+          from pathlib import Path
+
+          API='https://api-platform.ajd.co.kr/boards/honey-tips/contents'
+          UA='Mozilla/5.0 (compatible; AJD-public-metadata-audit/1.0)'
+          OUT=Path('out')
+
+          def get_json(page:int, attempts:int=7):
+              params={'page':page,'size':8,'sort':'createdDateTime','includeHidden':'true'}
+              url=API+'?'+urllib.parse.urlencode(params)
+              last=None
+              for i in range(attempts):
+                  try:
+                      req=urllib.request.Request(url, headers={'User-Agent':UA,'Accept':'application/json'})
+                      with urllib.request.urlopen(req, timeout=35) as r:
+                          return json.loads(r.read().decode('utf-8'))
+                  except Exception as e:
+                      last=e; time.sleep(min(10,0.8*(2**i)))
+              raise RuntimeError(f'page {page}: {last!r}')
+
+          first=get_json(0)
+          total_pages=int(first['totalPages']); total=int(first['totalElements'])
+          payloads={0:first}; failures=[]
+          with ThreadPoolExecutor(max_workers=10) as ex:
+              futs={ex.submit(get_json,p):p for p in range(1,total_pages)}
+              for fut in as_completed(futs):
+                  p=futs[fut]
+                  try: payloads[p]=fut.result()
+                  except Exception as e: failures.append((p,repr(e)))
+          if failures:
+              retry=[]
+              for p,_ in failures:
+                  try: payloads[p]=get_json(p,10)
+                  except Exception as e: retry.append((p,repr(e)))
+              failures=retry
+          if failures: raise SystemExit(f'failed pages: {failures[:20]} count={len(failures)}')
+
+          records=[]
+          for p in range(total_pages):
+              for x in payloads[p].get('content') or []:
+                  cats=' > '.join(c.get('categoryName','') for c in (x.get('categories') or []) if c.get('categoryName'))
+                  records.append({
+                      'content_id':x.get('sn'),
+                      'title':x.get('title',''),
+                      'category':cats,
+                      'read_count':x.get('readCount',0),
+                      'is_hidden':x.get('isHidden'),
+                      'created_datetime':x.get('createdDateTime',''),
+                      'last_modified_datetime':x.get('lastModifiedDateTime',''),
+                  })
+          by_id={int(r['content_id']):r for r in records}
+          records=list(by_id.values())
+          if len(records)!=total: raise SystemExit(f'count mismatch {len(records)} != {total}')
+
+          def d(s): return (s or '')[:10]
+          created=Counter(d(r['created_datetime']) for r in records)
+          modified=Counter(d(r['last_modified_datetime']) for r in records)
+          same=sum(1 for r in records if r['created_datetime']==r['last_modified_datetime'])
+          changed=len(records)-same
+          modified_after=sum(1 for r in records if r['last_modified_datetime'] and r['created_datetime'] and r['last_modified_datetime']>r['created_datetime'])
+          # Days with large created/modified batches
+          batch_created=[{'date':k,'count':v} for k,v in created.most_common(100)]
+          batch_modified=[{'date':k,'count':v} for k,v in modified.most_common(100)]
+
+          # Modification delay buckets
+          buckets=Counter()
+          delays=[]
+          for r in records:
+              try:
+                  c=datetime.fromisoformat(r['created_datetime']); m=datetime.fromisoformat(r['last_modified_datetime'])
+                  days=(m-c).total_seconds()/86400
+                  delays.append(days)
+                  if days < 0.01: b='<15분'
+                  elif days < 1: b='<1일'
+                  elif days < 7: b='1~6일'
+                  elif days < 30: b='7~29일'
+                  elif days < 90: b='30~89일'
+                  elif days < 365: b='90~364일'
+                  else: b='365일 이상'
+                  buckets[b]+=1
+              except: pass
+
+          # Top 10% view records
+          records.sort(key=lambda r:int(r['read_count'] or 0), reverse=True)
+          n=(len(records)+9)//10
+          top=records[:n]
+          top_created=Counter(d(r['created_datetime']) for r in top)
+          top_modified=Counter(d(r['last_modified_datetime']) for r in top)
+          top_changed=sum(1 for r in top if r['created_datetime']!=r['last_modified_datetime'])
+
+          with (OUT/'ajd_created_modified.csv').open('w',encoding='utf-8-sig',newline='') as f:
+              w=csv.DictWriter(f,fieldnames=list(records[0].keys())); w.writeheader(); w.writerows(records)
+          summary={
+              'total_records':len(records), 'total_pages':total_pages,
+              'same_created_modified_exact':same,
+              'created_modified_different':changed,
+              'modified_after_created':modified_after,
+              'modification_delay_buckets':dict(buckets),
+              'top_created_dates':batch_created[:30],
+              'top_modified_dates':batch_modified[:30],
+              'top10_count':len(top),
+              'top10_created_modified_different':top_changed,
+              'top10_created_dates':[{'date':k,'count':v} for k,v in top_created.most_common(20)],
+              'top10_modified_dates':[{'date':k,'count':v} for k,v in top_modified.most_common(20)],
+              'selected':{str(i):by_id.get(i) for i in [44622,27823,35599,24508,10454,12699,24407,39456,66279]},
+          }
+          (OUT/'ajd_date_summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8')
+          print(json.dumps(summary,ensure_ascii=False,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ajd-created-modified-analysis
+          path: out/
+          retention-days: 3
